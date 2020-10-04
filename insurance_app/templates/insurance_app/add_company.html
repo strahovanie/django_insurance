@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function () {
+        $('.js-example-basic-single').select2();
+        $(select_first).change(function() {
+            var choice_id=this.value;
+            console.log(choice_id);
+                $(add).bind("click", function(){
+                console.log(choice_id);
+                        $.ajax({
+                            type:"POST",
+                            data: {'choice_id':choice_id, 'action':'add'},
+                            url: 'add_chosen_company/',
+                            success: function(){$(ok_add).text('Добавлено')}
+                            });
+                        });
+                    });
+        $(select_second).change(function() {
+            var choice_id=this.value;
+            console.log(choice_id);
+                $(delete_company).bind("click", function(){
+                console.log(choice_id);
+                        $.ajax({
+                            type:"POST",
+                            data: {'choice_id':choice_id, 'action':'delete'},
+                            url: 'add_chosen_company/',
+                            success: function(){$(ok_delete).text('Удалено')}
+                            });
+                        });
+                    });
+
+                });
+</script>
+
+{% if user.is_authenticated %}
+<div class="wrapper">
+    <div>
+        <h4 class="title is-3">Укажите, к какой компании вы относитесь:</h4>
+        <select id="select_first" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
+            {% for company in companies %}
+                <option value="{{ company.id }}">{{ company.IAN_FULL_NAME }}</option>
+            {% endfor %}
+        </select>
+        <button id="add" class="btn btn-dark" style="width:100px; height: 40px">Добавить</button>
+        <label id="ok_add"></label><br>
+
+        <h4 class="title is-3" style="margin-top:40px;">Укажите, какую компанию вы хотите удалить из своего списка</h4>
+        <select id="select_second" style="width:400px;" class="js-example-basic-single" ><option value="%null%"></option>
+            {% for company in companies %}
+                <option value="{{ company.id }}">{{ company.IAN_FULL_NAME }}</option>
+            {% endfor %}
+        </select>
+        <button id="delete_company" class="btn btn-dark" style="width:100px; height: 40px">Удалить</button>
+        <label id="ok_delete"></label><br>
+
+        <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте пользователя: </h1>
+        <ul>
+            <li>ID: {{ user.id }}</li>
+            <li>Username: {{ user.username }}</li>
+            <li>Email: {{ user.email }}</li>
+            <li>First name: {{ user.first_name }}</li>
+            <li>Last name: {{ user.last_name }}</li>
+            <li>Mobile phone: {{ user.userprofile.mobile_phone }}</li>
+        </ul>
+    </div>
+    <div>
+        <h2 class="title">Изменить свои данные пользователя сайта: </h2>
+            <form method="POST" action="{% url 'insurance_app:add_company' %}">
+                {% csrf_token %}
+                {{ form1.as_table }}
+                {{ form2.as_table }}
+                {{ form3.as_table }}
+                <button type="submit" class="btn btn-dark" style="margin-top: 20px">Save</button>
+             </form>
+    </div>
+</div>
+
+<style>
+.wrapper {
+    display: grid;
+    grid-template-columns: 650px 650px;
+    margin-left: 10px;
+    margin-top: 20px;
+}
+</style>
+{% else %}
+Вы не зарегестрированы или не вошли в аккаунт
+{% endif %}
+{% endblock content %}

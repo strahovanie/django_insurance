@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if admin == True %}
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function () {
+        $('.js-example-basic-single').select2();
+        $(select_first).change(function() {
+            var choice_id=this.value;
+            console.log(choice_id);
+                $(add).bind("click", function(){
+                console.log(choice_id);
+                        $.ajax({
+                            type:"POST",
+                            data: {'choice_id':choice_id, 'action':'add'},
+                            url: 'add_chosen_company/',
+                            success: function(){$(ok_add).text('Добавлено')}
+                            });
+                        });
+                    });
+        $(select_second).change(function() {
+            var choice_id=this.value;
+            console.log(choice_id);
+                $(delete_company).bind("click", function(){
+                console.log(choice_id);
+                        $.ajax({
+                            type:"POST",
+                            data: {'choice_id':choice_id, 'action':'delete'},
+                            url: 'add_chosen_company/',
+                            success: function(){$(ok_delete).text('Удалено')}
+                            });
+                        });
+                    });
+
+                });
+</script>
+<style>
+    .wrapper {
+        display: grid;
+        grid-template-columns: 1500px 1500px;
+        margin-left: 10px;
+        margin-top: 20px;
+        overflow-x: auto;
+    }
+    table {
+        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+        font-size: 14px;
+        background: white;
+        max-width: 100%;
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    th {
+        font-weight: normal;
+        color: #039;
+        border-bottom: 2px solid #6678b1;
+        padding: 10px 8px;
+    }
+    td {
+        color: #669;
+        padding: 9px 8px;
+        transition: .3s linear;
+    }
+    tr:hover td {
+        color: black;
+    }
+</style>
+<h2>Полученные запросы:</h2>
+<div class="wrapper">
+    <table cellpadding="1" cellspacing="0" class="grid zebra">
+        <tr>
+            <th id="ID">ID</th>
+            <th id="USERNAME">Имя юзера</th>
+            <th id="MOBILE_PHONE">Мобильный телефон</th>
+            <th id="EMAIL">Email</th>
+            <th id="IAN_FULL_NAME">Название компании</th>
+            <th id="IM_NUMIDENT">Код ЄДРПОУ</th>
+            <th id="ACTION">Действие</th>
+            <th id="REQUEST_DATE">Дата запроса</th>
+            <th id="CONFIRM">Подтвержение</th>
+        </tr>
+        {% for request in requests %}
+            <tr>
+                <td>{{ request.id }}</td>
+                <td>{{ request.user.username }}</td>
+                <td>{{ request.user.userprofile.mobile_phone }}</td>
+                <td>{{ request.user.email }}</td>
+                <td>{{ request.company.IAN_FULL_NAME }}</td>
+                <td>{{ request.company.IM_NUMIDENT }}</td>
+                <td>{{ request.action }}</td>
+                <td>{{ request.request_date}}</td>
+                <td>{{ request.confirm }}</td>
+            </tr>
+
+        {% endfor %}
+    </table>
+</div>
+{% else %}
+Вы не зарегестрированы или не вошли в аккаунт
+{% endif %}
+{% endblock content %}

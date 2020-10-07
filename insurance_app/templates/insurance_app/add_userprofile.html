@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
+    <h2 style="text-align: center;">Добавьте дополнительную <br>информацию</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <div class="col-md-20 text-center">
+    <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 100px">Добавить</button>
+    </div>
+</form>
+</div>
+{% endblock content %}

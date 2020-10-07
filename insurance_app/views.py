@@ -4,10 +4,24 @@ from .models import Company
 from django.template import loader
 from django.contrib import auth
 from django.shortcuts import render,redirect
-from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
-from .forms import UserProfileForm, UserUpdateForm
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import *
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from django_email_verification import sendConfirm
+
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from .forms import SignupForm
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes, force_text
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.template.loader import render_to_string
+from .tokens import account_activation_token
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
 
 def index(request):
     companies = Company.objects.all()
@@ -42,7 +56,7 @@ def add_company(request):
     if request.method == "POST":
         form1 = UserUpdateForm(request.POST,instance=user)
         form2 = UserProfileForm(request.POST,instance=user.userprofile)
-        form3 = PasswordChangeForm(data=request.POST, user=user)
+        form3 = MyPasswordChangeForm(data=request.POST, user=user)
         if form1.is_valid() and form2.is_valid() and form3.is_valid():
             post1 = form1.save(commit=False)
             post2 = form2.save(commit=False)
@@ -54,8 +68,12 @@ def add_company(request):
             return redirect('insurance_app:add_company')
     else:
         form1 = UserUpdateForm(instance=user)
-        form2 = UserProfileForm(instance=user.userprofile)
-        form3 = PasswordChangeForm(user=user)
+        try:
+            form2 = UserProfileForm(instance=user.userprofile)
+        except Exception as e:
+            form2 = UserProfileForm()
+            print(e)
+        form3 = MyPasswordChangeForm(user=user)
     context = {
         'user' : user,
         'companies': companies,
@@ -132,32 +150,93 @@ def update_company(request):
 
 
 
-def login(request):
+def login_user(request):
 
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = auth.authenticate(request,username=username,password=password)
+        user_form = LoginForm(data=request.POST)
+        user = authenticate(username=user_form.data['username'],password=user_form.data['password'])
         if user is not None:
             auth.login(request, user)
             return redirect('insurance_app:index')
         else:
-            return render(request,'insurance_app/login.html',{'login_error':'User is not found'})
+            return render(request,'insurance_app/login_user.html',{'login_error':'User is not found'})
     else:
-        return render(request, 'insurance_app/login.html')
+        form = LoginForm()
+        return render(request, 'insurance_app/login_user.html', context={'form':form})
 
 def logout(request):
     auth.logout(request)
     return redirect('insurance_app:index')
 
+# def register(request):
+#     form=UserCreationForm()
+#     if request.method == 'POST':
+#         newuser_form = UserCreationForm(request.POST)
+#         if newuser_form.is_valid():
+#             #newuser_form.save()
+#             #auth.authenticate(username=newuser_form.cleaned_data['username'],password=newuser_form.cleaned_data['password2'])
+#             user = get_user_model().objects.create(username=newuser_form.cleaned_data['username'],password=newuser_form.cleaned_data['password2'],email=newuser_form.cleaned_data['email'])
+#             sendConfirm(user)
+#             return redirect('insurance_app:index')
+#         else:
+#             form=newuser_form
+#     return render(request,'insurance_app/register.html',context={'form': form})
+
+
 def register(request):
-    form=UserCreationForm()
     if request.method == 'POST':
-        newuser_form = UserCreationForm(request.POST)
-        if newuser_form.is_valid():
-            newuser_form.save()
-            auth.authenticate(username=newuser_form.cleaned_data['username'],password=newuser_form.cleaned_data['password2'])
+        form1 = SignupForm(request.POST)
+        form2 = UserProfileForm(request.POST)
+        if form1.is_valid():
+            user = form1.save(commit=False)
+            user.is_active = False
+            user.save()
+            current_site = get_current_site(request)
+            mail_subject = 'Активация вашего аккаунта'
+            message = render_to_string('insurance_app/acc_active_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                'token':account_activation_token.make_token(user),
+            })
+            to_email = form1.cleaned_data.get('email')
+            domain = to_email.split('@')[1]
+            email = EmailMessage(
+                        mail_subject, message, to=[to_email]
+            )
+            email.send()
+            return render(request, 'insurance_app/activate_account.html', {'domain':domain})
+    else:
+        form1 = SignupForm()
+        form2 = UserProfileForm()
+    return render(request, 'insurance_app/register.html', {'form1': form1})
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        # return redirect('home')
+        return redirect('insurance_app:add_userprofile')
+    else:
+        return HttpResponse('Activation link is invalid!')
+
+def add_userprofile(request):
+
+    if request.method == 'POST':
+        user = request.user
+        post_values = request.POST.copy()
+        post_values['user'] = user
+        form = UserProfileForm(post_values)
+        if form.is_valid():
+            post1 = form.save(commit=False)
+            post1.save()
             return redirect('insurance_app:index')
-        else:
-            form=newuser_form
-    return render(request,'insurance_app/register.html',context={'form': form})
+    else:
+        form = UserProfileForm()
+    return render(request, 'insurance_app/add_userprofile.html', {'form': form})

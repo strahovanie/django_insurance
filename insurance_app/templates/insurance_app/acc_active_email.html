@@ -1,0 +1,5 @@
+{% autoescape off %}
+Здравствуйте {{ user.username }},
+Пожалуйста нажмите на ссылку, чтобы подтвердить вашу регистрацию,
+http://{{ domain }}{% url 'insurance_app:activate' uidb64=uid token=token %}
+{% endautoescape %}

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'insurance_app.apps.InsuranceAppConfig',
+    'django_email_verification',
 ]
 
 MIDDLEWARE = [
@@ -130,5 +131,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'strahovka.work2020@gmail.com'
+EMAIL_HOST_PASSWORD = 'cdnblpUYBvdlH8'
+EMAIL_PORT = 587

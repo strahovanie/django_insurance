@@ -7,11 +7,16 @@ from django.contrib.auth.models import User
 import datetime
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    mobile_phone = models.CharField(max_length=200)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,blank=True)
+    mobile_phone = models.CharField(max_length=200, blank=True)
+    work_phone = models.CharField(max_length=200, blank=True)
+    email2 = models.EmailField(max_length=200, blank=True)
 
     def __unicode__(self):
         return self.user
+
+    def set_user(self, user):
+        self.user = user
 
 class Company(models.Model):
     IAN_FULL_NAME = models.CharField(max_length=200)

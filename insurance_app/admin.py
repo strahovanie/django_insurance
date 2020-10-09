@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Company, Request
+from .models import *
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
@@ -23,3 +23,4 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 admin.site.register(Company)
 admin.site.register(Request)
+admin.site.register(CompanyUser)

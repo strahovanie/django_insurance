@@ -3,7 +3,7 @@ import requests
 import re
 import datetime
 from fake_useragent import UserAgent
-from .models import Company,Request
+from .models import *
 
 class Updates:
 
@@ -190,15 +190,12 @@ class DatabaseAccess:
         auth_user=db(db.auth_user.id == id).select().first()
         return auth_user
 
-    def add_company_user(self,site_user,company_identifier):
-        db['company_user'].insert(site_user=site_user, company_id=company_identifier)
+    def add_company_user(self,user,company):
+        new_cu = CompanyUser(user=user, company=company)
+        new_cu.save()
 
-    def delete_company_user(self,user_id,company_identifier):
-        company = db(db.company.id == company_identifier).select().last()
-        code = company.IM_NUMIDENT
-        companies = db(db.company.IM_NUMIDENT == code).select()
-        for i in companies:
-            db(db.company_user.site_user == user_id and db.company_user.company_id == i.id).delete()
+    def delete_company_user(self,user,company):
+        CompanyUser.objects.get(user=user, company=company).delete()
 
     def get_codes(self, identifier):
         data=[]
@@ -252,14 +249,14 @@ class DatabaseAccess:
 
         return "OK_license"
 
-    def check_company(self, current, site_user):
-
-        rows = db(db.company_user.site_user == site_user).select()
-        for i in rows:
-            company2 = db(db.company.id == i.company_id).select().last()
-            if company2.IM_NUMIDENT == current.IM_NUMIDENT:
-                return True
-        return False
+    def check_company(self, current_company, current_user, action):
+        try:
+            row = CompanyUser.objects.get(user=current_user, company=current_company)
+            if action == 'add': return False
+            else: return True
+        except:
+            if action == 'add': return True
+            else: return False
 
     def insert_request(self, user, company, action):
 
@@ -267,18 +264,18 @@ class DatabaseAccess:
         tmp.save()
 
     def update_company_user(self):
-        logger.info('Update_company_user class method started')
-        rows = db(db.request).select()
+        rows = Request.objects.all()
         for reqst in rows:
             if reqst.action == 'add' and reqst.confirm == True:
-                check = self.check_company(reqst.company_id, reqst.site_user)
-                if not check:
-                    self.add_company_user(reqst.site_user, reqst.company_id)
-                    db(db.request.id == reqst.id).delete()
+                check = self.check_company(reqst.company, reqst.user, 'add')
+                if check:
+                    self.add_company_user(reqst.user, reqst.company)
+                Request.objects.get(id = reqst.id).delete()
             elif reqst.action == 'delete' and reqst.confirm == True:
-                self.delete_company_user(reqst.site_user, reqst.company_id)
-                db(db.request.id == reqst.id).delete()
-        logger.info('Update_company_user class method OK')
+                check = self.check_company(reqst.company, reqst.user, 'delete')
+                if check:
+                    self.delete_company_user(reqst.user, reqst.company)
+                Request.objects.get(id = reqst.id).delete()
 
     def insert_name(self,name):
 

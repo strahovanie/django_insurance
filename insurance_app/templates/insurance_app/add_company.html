@@ -61,11 +61,17 @@ $(document).ready(function () {
         <h1 class="title is-5" style="margin-top:70px;">Информация о вашем аккаунте пользователя: </h1>
         <ul>
             <li>ID: {{ user.id }}</li>
-            <li>Username: {{ user.username }}</li>
-            <li>Email: {{ user.email }}</li>
-            <li>First name: {{ user.first_name }}</li>
-            <li>Last name: {{ user.last_name }}</li>
-            <li>Mobile phone: {{ user.userprofile.mobile_phone }}</li>
+            <li>Имя пользователя: {{ user.username }}</li>
+            <li>Электронная почта: {{ user.email }}</li>
+            <li>Имя: {{ user.first_name }}</li>
+            <li>Фамилия: {{ user.last_name }}</li>
+            <li>Номер мобильного телефона: {{ user.userprofile.mobile_phone }}</li>
+            <li>Номер рабочего телефона: {{ user.userprofile.work_phone }}</li>
+            <li>Дополнительная электронная почта: {{ user.userprofile.email2 }}</li>
+            <li>Компании, к которым вы относитесь:</li>
+            {% for company in user_companies %}
+            {{ company.company.IAN_FULL_NAME }}<br>
+            {% endfor %}
         </ul>
     </div>
     <div>

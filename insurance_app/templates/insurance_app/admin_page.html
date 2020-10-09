@@ -1,76 +1,58 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 {% if admin == True %}
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 <script>
 $(document).ready(function () {
-        $('.js-example-basic-single').select2();
-        $(select_first).change(function() {
-            var choice_id=this.value;
-            console.log(choice_id);
-                $(add).bind("click", function(){
-                console.log(choice_id);
-                        $.ajax({
-                            type:"POST",
-                            data: {'choice_id':choice_id, 'action':'add'},
-                            url: 'add_chosen_company/',
-                            success: function(){$(ok_add).text('Добавлено')}
-                            });
-                        });
-                    });
-        $(select_second).change(function() {
-            var choice_id=this.value;
-            console.log(choice_id);
-                $(delete_company).bind("click", function(){
-                console.log(choice_id);
-                        $.ajax({
-                            type:"POST",
-                            data: {'choice_id':choice_id, 'action':'delete'},
-                            url: 'add_chosen_company/',
-                            success: function(){$(ok_delete).text('Удалено')}
-                            });
-                        });
-                    });
-
-                });
+        $('[id^="confirm_request_"]').bind("click", function(){
+            request_id = this.value;
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                data: {'request_id':request_id},
+                url: 'accept_chosen_request/',
+                success: function(){
+                $(button_id).removeClass('btn btn-dark').addClass('btn btn-success');
+                $(button_id).text('Подтверждено');
+                },
+            });
+        });
+        $("#confirm_all").bind("click", function(){
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                url: 'accept_all_request/',
+                success: function(){
+                $("#confirm_all").removeClass('btn btn-dark').addClass('btn btn-success');
+                $("#confirm_all").text('Подтверждено все');
+                },
+            });
+        });
+        $("#load_to_database").bind("click", function(){
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                url: 'load_to_database/',
+                success: function(){
+                $("#load_to_database").removeClass('btn btn-dark').addClass('btn btn-success');
+                $("#load_to_database").text('Загружено');
+                },
+            });
+        });
+        $('#table-id').DataTable();
+});
 </script>
-<style>
-    .wrapper {
-        display: grid;
-        grid-template-columns: 1500px 1500px;
-        margin-left: 10px;
-        margin-top: 20px;
-        overflow-x: auto;
-    }
-    table {
-        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-        font-size: 14px;
-        background: white;
-        max-width: 100%;
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-    }
-    th {
-        font-weight: normal;
-        color: #039;
-        border-bottom: 2px solid #6678b1;
-        padding: 10px 8px;
-    }
-    td {
-        color: #669;
-        padding: 9px 8px;
-        transition: .3s linear;
-    }
-    tr:hover td {
-        color: black;
-    }
-</style>
-<h2>Полученные запросы:</h2>
-<div class="wrapper">
-    <table cellpadding="1" cellspacing="0" class="grid zebra">
+<div class="table-div" style="margin-left:5px; margin-top:25px;">
+<table id="table-id" class="display dataTable dtr-inline collapsed" data-page-length='10' style="width:99%">
+    <thead>
         <tr>
             <th id="ID">ID</th>
             <th id="USERNAME">Имя юзера</th>
@@ -81,7 +63,10 @@ $(document).ready(function () {
             <th id="ACTION">Действие</th>
             <th id="REQUEST_DATE">Дата запроса</th>
             <th id="CONFIRM">Подтвержение</th>
+            <th id="CONFIRM_BUTTON">Кнопка подтверждения</th>
         </tr>
+    </thead>
+    <tbody>
         {% for request in requests %}
             <tr>
                 <td>{{ request.id }}</td>
@@ -93,10 +78,23 @@ $(document).ready(function () {
                 <td>{{ request.action }}</td>
                 <td>{{ request.request_date}}</td>
                 <td>{{ request.confirm }}</td>
+                {% if request.confirm == False %}
+                <td><button class="btn btn-dark" id="confirm_request_{{ request.id }}" value="{{ request.id }}">Подтвердить</button></td>
+                {% else %}
+                <td> ----- </td>
+                {% endif %}
             </tr>
-
         {% endfor %}
+    </tbody>
     </table>
+<div style="margin-top:20px; position:absolute; right:0">
+    {% if check_requests_flag == False %}
+        <button class="btn btn-dark" id="confirm_all">Подтвердить все</button>
+    {% endif %}
+</div>
+<div style="margin-top:30px">
+     <button class="btn btn-dark" id="load_to_database">Загрузить в базу</button>
+</div>
 </div>
 {% else %}
 Вы не зарегестрированы или не вошли в аккаунт

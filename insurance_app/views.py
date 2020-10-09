@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from .classes import *
-from .models import Company
+from .models import *
 from django.template import loader
 from django.contrib import auth
 from django.shortcuts import render,redirect
@@ -31,19 +31,50 @@ def index(request):
     }
     return HttpResponse(template.render(context, request))
 
-def accept_request(id):
-    confirm_request = Request.objects.get(id=id)
+
+def check_requests():
+    flag=True
+    rows = Request.objects.all()
+    for row in rows:
+        if row.confirm==False:
+            flag=False
+            break
+    return flag
+
+@csrf_exempt
+def accept_chosen_request(request):
+    request_id = request.POST.get('request_id')
+    confirm_request = Request.objects.get(id = request_id)
     confirm_request.confirm=True
     confirm_request.save()
+    return JsonResponse({'context':'hi'})
+
+@csrf_exempt
+def accept_all_request(request):
+    requests = Request.objects.all()
+    for request in requests:
+        if request.confirm == False:
+            request.confirm=True
+            request.save()
+    return JsonResponse({'context': 'hi'})
+
+@csrf_exempt
+def load_to_database(request):
+    db_obj = DatabaseAccess()
+    db_obj.update_company_user()
+    return JsonResponse({'context': 'hi'})
 
 def admin_page(request):
     user = request.user
+    print(dir(user))
     admin = user.is_superuser
     requests = Request.objects.all()
     template = loader.get_template('insurance_app/admin_page.html')
+    check_requests_flag = check_requests()
     context = {
         'admin': admin,
-        'requests': requests
+        'requests': requests,
+        'check_requests_flag' : check_requests_flag,
     }
     return HttpResponse(template.render(context, request))
 
@@ -53,6 +84,7 @@ def add_company(request):
     last_date = last_company.update_date
     companies = Company.objects.filter(update_date = last_date)
     template = loader.get_template('insurance_app/add_company.html')
+    user_companies = CompanyUser.objects.filter(user=user)
     if request.method == "POST":
         form1 = UserUpdateForm(request.POST,instance=user)
         form2 = UserProfileForm(request.POST,instance=user.userprofile)
@@ -79,7 +111,8 @@ def add_company(request):
         'companies': companies,
         'form1': form1,
         'form2': form2,
-        'form3': form3
+        'form3': form3,
+        'user_companies': user_companies
     }
     return HttpResponse(template.render(context, request))
 
@@ -159,7 +192,8 @@ def login_user(request):
             auth.login(request, user)
             return redirect('insurance_app:index')
         else:
-            return render(request,'insurance_app/login_user.html',{'login_error':'User is not found'})
+            form = LoginForm()
+            return render(request,'insurance_app/login_user.html',{'login_error':'User is not found','form':form})
     else:
         form = LoginForm()
         return render(request, 'insurance_app/login_user.html', context={'form':form})

@@ -43,3 +43,7 @@ class Request(models.Model):
     action = models.CharField(max_length=200)
     request_date = models.DateTimeField(default=datetime.datetime.now())
     confirm = models.BooleanField(default=False)
+
+class CompanyUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)

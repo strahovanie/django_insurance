@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = 'e$-a_l(5y=vshlhkjus9uux=_71@qi=aezy%oh$sc2&@cp)45g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['secret-earth-05069.herokuapp.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -57,7 +57,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
-
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles'),
     os.path.join(BASE_DIR, 'insurance\\static'),
@@ -131,11 +130,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = [
-    os.path.join(BASE_DIR, 'staticfiles'),
-    os.path.join(BASE_DIR, 'insurance\\static'),
-    os.path.join(BASE_DIR, 'insurance_app\\static'),
-]
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'

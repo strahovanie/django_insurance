@@ -164,14 +164,14 @@ def update_company(request):
     modify_obj = DataModify()
     try:
         data = db_obj.get_update_data()
-        now = datetime.datetime.now(datetime.timezone.utc)
-        if (now - data).days > 7:
+        now = timezone.now()
+        print((now - data).days)
+        if (now - data).days < 7:
             print(1)
             tuple_obj = obj.parser()
             rows = Company.objects.filter(update_date = data)
             modify_obj.modify_company(tuple_obj[0])
             obj.compare(rows, tuple_obj[0])
-            print(tuple_obj[0])
             print(db_obj.upload_companies(tuple_obj[0]) + '1')
         else: return HttpResponse("Not updated")
     except AttributeError:

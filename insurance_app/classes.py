@@ -4,12 +4,18 @@ import re
 import datetime
 from fake_useragent import UserAgent
 from .models import *
+from django.utils import timezone
 
 class Updates:
 
     def parser(self):
+        rows = Company.objects.all()
+        last_row = rows.last()
+        try:
+            last_id = last_row.id
+        except AttributeError:
+            last_id = 0
 
-        last_id = 0
         companies_info=[]
         licenses = []
         id = last_id + 1
@@ -110,18 +116,20 @@ class Updates:
         return table_info
 
     def compare(self,rows,companies):
-        changes = ' '
+        changes = None
         keys = ['id','IAN_RO_DT','changes','IM_NUMIDENT','update_date']
         for row in rows:
             for company in companies:
                 if int(row.IM_NUMIDENT) == int(company['IM_NUMIDENT']):
                     for key in company:
-                        if str(row[key]) != str(company[key]) and key not in keys:
+                        if str(getattr(row, key)) != str(company[key]) and key not in keys:
+                            if changes == None:
+                                changes = ''
                             changes += str(key) + ','
                         else:
                             continue
                     company['changes'] = changes
-                    changes = ' '
+                    changes = None
                 else: continue
 
 class DataModify:
@@ -147,10 +155,10 @@ class DataModify:
                     date = company['IAN_RO_DT']
                     date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
                     company['IAN_RO_DT'] = date_time_obj
-                elif key in keys:
-                    company[key]=company[key].replace("'",'`')
-                    company[key]=company[key].replace('"','``')
-            company['update_date']=str(datetime.datetime.now())[0:19]
+                # elif key in keys:
+                #     company[key]=company[key].replace("'",'`')
+                #     company[key]=company[key].replace('"','``')
+            company['update_date']=str(timezone.now())[0:19]
 
     def modify_license(self,licenses):
         keys=['NFS_NAME','LT_NNR2','LT_NAME','IL_NAME','LT_NNR_DUPL','LT_NNR_REREG',

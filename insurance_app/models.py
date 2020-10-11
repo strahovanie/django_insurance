@@ -21,7 +21,7 @@ class UserProfile(models.Model):
 class Company(models.Model):
     IAN_FULL_NAME = models.CharField(max_length=200)
     FIN_TYPE = models.CharField(max_length=200)
-    IM_NUMIDENT = models.IntegerField(unique=True,null=False)
+    IM_NUMIDENT = models.IntegerField(null=False)
     IAN_RO_SERIA = models.CharField(max_length=200,null=True,blank=True)
     IAN_RO_CODE = models.IntegerField(null=True,blank=True)
     IAN_RO_DT = models.DateTimeField(null=True,blank=True)

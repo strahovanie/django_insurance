@@ -9,7 +9,6 @@ from .forms import *
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
-from django_email_verification import sendConfirm
 
 from django.http import HttpResponse
 from django.shortcuts import render, redirect

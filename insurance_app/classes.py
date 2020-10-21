@@ -198,8 +198,9 @@ class DatabaseAccess:
         auth_user=db(db.auth_user.id == id).select().first()
         return auth_user
 
-    def add_company_user(self,user,company):
-        new_cu = CompanyUser(user=user, company=company)
+    def add_company_user(self,user,company, address,bank_props,position,pib,action_base):
+        new_cu = CompanyUser(user=user, company=company, address = address, bank_props = bank_props,
+                             position = position, pib = pib, action_base = action_base)
         new_cu.save()
 
     def delete_company_user(self,user,company):
@@ -259,14 +260,34 @@ class DatabaseAccess:
 
     def check_company(self, current_company, current_user, action):
         try:
-            row = CompanyUser.objects.get(user=current_user, company=current_company)
-            if action == 'add': return False
-            else: return True
+            rows = CompanyUser.objects.filter(user=current_user)
+            for row in rows:
+                print(row)
+                print(row.company.IM_NUMIDENT)
+                print(current_company.IM_NUMIDENT)
+                if row.company.IM_NUMIDENT == current_company.IM_NUMIDENT:
+                    if action == 'add':
+                        return False
+                    elif action == 'delete':
+                        return True
+            if action == 'add':
+                return True
+            elif action == 'delete':
+                return False
         except:
-            if action == 'add': return True
-            else: return False
+            if action == 'add':
+                return True
+            elif action == 'delete':
+                return False
 
-    def insert_request(self, user, company, action):
+
+    def insert_add_request(self, user, company, address, bank_props, position, pib, action_base, action):
+
+        tmp = Request(user = user, company = company, address = address, bank_props = bank_props,
+                      position = position, pib = pib, action_base = action_base, action = action)
+        tmp.save()
+
+    def insert_delete_request(self, user, company, action):
 
         tmp = Request(user = user, company = company, action = action)
         tmp.save()
@@ -277,11 +298,14 @@ class DatabaseAccess:
             if reqst.action == 'add' and reqst.confirm == True:
                 check = self.check_company(reqst.company, reqst.user, 'add')
                 if check:
-                    self.add_company_user(reqst.user, reqst.company)
+                    self.add_company_user(reqst.user, reqst.company, reqst.address, reqst.bank_props, reqst.position,
+                                          reqst.pib, reqst.action_base)
                 Request.objects.get(id = reqst.id).delete()
             elif reqst.action == 'delete' and reqst.confirm == True:
                 check = self.check_company(reqst.company, reqst.user, 'delete')
+                print(check)
                 if check:
+                    print("JJJJJJJJJJJJJ")
                     self.delete_company_user(reqst.user, reqst.company)
                 Request.objects.get(id = reqst.id).delete()
 

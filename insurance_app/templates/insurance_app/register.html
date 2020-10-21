@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="center-block" style="display: block; margin: auto; width: 700px; margin-top: 60px">
-    <h2 style="text-align: center">Регистрация</h2>
+    <h2 style="text-align: center">Реєстрація</h2>
     <form method="post">
         {% csrf_token %}
         {% for field in form1 %}
@@ -13,7 +13,7 @@
             {% endfor %}
         {% endfor %}
         <div class="col-md-20 text-center">
-            <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 200px">Зарегестрироваться</button>
+            <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 200px">Зареєструватися</button>
         </div>
     </form>
 </div>

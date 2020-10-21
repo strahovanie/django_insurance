@@ -40,6 +40,11 @@ class Company(models.Model):
 class Request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    address = models.CharField(max_length=200, blank=True)
+    bank_props = models.CharField(max_length=200, blank=True)
+    position = models.CharField(max_length=200, blank=True)
+    pib = models.CharField(max_length=200, blank=True)
+    action_base = models.CharField(max_length=200, blank=True)
     action = models.CharField(max_length=200)
     request_date = models.DateTimeField(default=datetime.datetime.now())
     confirm = models.BooleanField(default=False)
@@ -47,3 +52,8 @@ class Request(models.Model):
 class CompanyUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    address = models.CharField(max_length=200,blank=True)
+    bank_props = models.CharField(max_length=200,blank=True)
+    position = models.CharField(max_length=200,blank=True)
+    pib = models.CharField(max_length=200,blank=True)
+    action_base = models.CharField(max_length=200,blank=True)

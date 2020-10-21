@@ -8,6 +8,22 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 <script>
+function doIt() {
+        console.log(document.getElementById('update_database').value);
+       $.ajax({
+         type: "POST",
+         url: "update_database/",
+         data: {
+            alert_data: document.getElementById('update_database').value,
+         },
+         success: function(data) {
+           alert(data.context);
+         },
+         error: function(xhr, textStatus, errorThrown) {
+           alert("Error: "+errorThrown+xhr.status+xhr.responseText);
+         }
+       });
+     }
 $(document).ready(function () {
         $('[id^="confirm_request_"]').bind("click", function(){
             request_id = this.value;
@@ -19,7 +35,7 @@ $(document).ready(function () {
                 url: 'accept_chosen_request/',
                 success: function(){
                 $(button_id).removeClass('btn btn-dark').addClass('btn btn-success');
-                $(button_id).text('Подтверждено');
+                $(button_id).text('Підтверджено');
                 },
             });
         });
@@ -31,7 +47,7 @@ $(document).ready(function () {
                 url: 'accept_all_request/',
                 success: function(){
                 $("#confirm_all").removeClass('btn btn-dark').addClass('btn btn-success');
-                $("#confirm_all").text('Подтверждено все');
+                $("#confirm_all").text('Підтверджено все');
                 },
             });
         });
@@ -43,43 +59,50 @@ $(document).ready(function () {
                 url: 'load_to_database/',
                 success: function(){
                 $("#load_to_database").removeClass('btn btn-dark').addClass('btn btn-success');
-                $("#load_to_database").text('Загружено');
+                $("#load_to_database").text('Завантажено');
                 },
             });
         });
-        $('#table-id').DataTable();
+    $('#table-id').DataTable( {
+        "scrollX": true,
+		"language": {
+			"url": "https://cdn.datatables.net/plug-ins/1.10.21/i18n/Ukrainian.json",
+		},
+	} );
 });
 </script>
 <div class="table-div" style="margin-left:5px; margin-top:25px;">
 <table id="table-id" class="display dataTable dtr-inline collapsed" data-page-length='10' style="width:99%">
     <thead>
         <tr>
-            <th id="ID">ID</th>
-            <th id="USERNAME">Имя юзера</th>
-            <th id="MOBILE_PHONE">Мобильный телефон</th>
+            <th id="USERNAME">Ім'я користувача</th>
             <th id="EMAIL">Email</th>
-            <th id="IAN_FULL_NAME">Название компании</th>
+            <th id="IAN_FULL_NAME">Назва компанії</th>
             <th id="IM_NUMIDENT">Код ЄДРПОУ</th>
-            <th id="ACTION">Действие</th>
-            <th id="REQUEST_DATE">Дата запроса</th>
-            <th id="CONFIRM">Подтвержение</th>
-            <th id="CONFIRM_BUTTON">Кнопка подтверждения</th>
+            <th id="ACTION">Дія</th>
+            <th id="ADDRESS">Адреса</th>
+            <th id="BANK_PROPS">Банківські реквізити</th>
+            <th id="POSITION">Посада</th>
+            <th id="REQUEST_DATE">Дата запиту</th>
+            <th id="CONFIRM">Підтвердження</th>
+            <th id="CONFIRM_BUTTON">Кнопка підтвердження</th>
         </tr>
     </thead>
     <tbody>
         {% for request in requests %}
             <tr>
-                <td>{{ request.id }}</td>
                 <td>{{ request.user.username }}</td>
-                <td>{{ request.user.userprofile.mobile_phone }}</td>
                 <td>{{ request.user.email }}</td>
                 <td>{{ request.company.IAN_FULL_NAME }}</td>
                 <td>{{ request.company.IM_NUMIDENT }}</td>
                 <td>{{ request.action }}</td>
+                <td>{{ request.address }}</td>
+                <td>{{ request.bank_props }}</td>
+                <td>{{ request.position }}</td>
                 <td>{{ request.request_date}}</td>
                 <td>{{ request.confirm }}</td>
                 {% if request.confirm == False %}
-                <td><button class="btn btn-dark" id="confirm_request_{{ request.id }}" value="{{ request.id }}">Подтвердить</button></td>
+                <td><button class="btn btn-dark" id="confirm_request_{{ request.id }}" value="{{ request.id }}">Підтвердити</button></td>
                 {% else %}
                 <td> ----- </td>
                 {% endif %}
@@ -89,14 +112,26 @@ $(document).ready(function () {
     </table>
 <div style="margin-top:20px; position:absolute; right:0">
     {% if check_requests_flag == False %}
-        <button class="btn btn-dark" id="confirm_all">Подтвердить все</button>
+        <button class="btn btn-dark" id="confirm_all">Підтвердити все</button>
     {% endif %}
 </div>
-<div style="margin-top:30px">
-     <button class="btn btn-dark" id="load_to_database">Загрузить в базу</button>
+<div style="margin-top:20px">
+    {% if requests %}
+    <button class="btn btn-dark" id="load_to_database">Завантажити в базу</button>
+    {% endif %}
+    {% if alert_data > 7 %}
+        <button class="btn btn-danger" id="update_database" onclick="doIt()" value=" {{ alert_data }}">Оновити базу компаній</button>
+        <p style="color:red">База даних компаній не оновлювалася {{ alert_data }} днів. Будь ласка, оновіть</p>
+    {% elif alert_data == None %}
+        <button class="btn btn-danger" id="update_database" onclick="doIt()" value=" {{ alert_data }}">Завантажити базу компаній</button>
+        <p style="color:red">База даних компаній порожня. Будь ласка, завантажіть дані</p>
+    {% else %}
+        <button class="btn btn-dark" id="update_database" onclick="doIt()" value=" {{ alert_data }}">Оновити базу компаній</button>
+        <p>База даних компаній оновлена</p>
+    {% endif %}
 </div>
 </div>
 {% else %}
-Вы не зарегестрированы или не вошли в аккаунт
+Ви не зареєстровані або не увійшли в аккаунт
 {% endif %}
 {% endblock content %}

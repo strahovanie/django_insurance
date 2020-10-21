@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'insurance_app.apps.InsuranceAppConfig',
+    'django_tables2'
 ]
 
 MIDDLEWARE = [
@@ -58,11 +59,11 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles'),
     os.path.join(BASE_DIR, 'insurance\\static'),
     os.path.join(BASE_DIR, 'insurance_app\\static'),
 ]
 
+# STATIC_ROOT = "insurance/static"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -74,6 +75,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request'
             ],
         },
     },
@@ -137,8 +139,8 @@ EMAIL_HOST_USER = 'strahovka.work2020@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdnblpUYBvdlH8'
 EMAIL_PORT = 587
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TASK_SERIALIZER = 'json'
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TASK_SERIALIZER = 'json'

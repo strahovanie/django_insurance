@@ -20,24 +20,32 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item active">
-        <a class="nav-link" href="{% url 'insurance_app:index' %}">Страхование</a>
+        <a class="nav-link" href="{% url 'insurance_app:index' %}">Страхування</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'insurance_app:index' %}">Главная</a>
+        <a class="nav-link" href="{% url 'insurance_app:index' %}">Головна</a>
       </li>
     </ul>
   </div>
 
   <ul class="navbar-nav mr-auto">
     {% if user.is_authenticated %}
-      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:logout' %}">Выйти</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:add_company' %}">{{ user.username }}</a></li>
-      {% if user.is_superuser %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:admin_page' %}">Админ</a></li>
-      {% endif %}
+    <li class="nav-item">
+      <div class="btn-group">
+        <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ user.username }}</button>
+        <div class="dropdown-menu dropdown-menu-right">
+        <a class="dropdown-item" href="{% url 'insurance_app:add_company' %}">Аккаунт</a>
+        <a class="dropdown-item" href="{% url 'insurance_app:change_account_password' %}">Змінити пароль</a>
+          {% if user.is_superuser %}
+        <a class="dropdown-item" href="{% url 'insurance_app:admin_page' %}">Адмін</a>
+          {% endif %}
+        </div>
+      </div>
+    </li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:logout' %}">Вийти</a></li>
     {% else %}
-      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:login_user' %}">Войти</a></li>
-      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:register' %}">Регистрация</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:login_user' %}">Увійти</a></li>
+      <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:register' %}">Реєстрація</a></li>
     {% endif %}
   </ul>
 
@@ -50,7 +58,7 @@
           {% endblock login %}
     </div>
     <footer class="footer">
-      <div class="footer-text">Insurance App</div>
+      <div class="footer-text">Страхування</div>
     </footer>
 </body>
 </html>

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 
@@ -57,10 +58,16 @@
 </table>
 </div>
 <script>
-    $('#table-id').DataTable({
-    "scrollX": true });
+$(document).ready(function() {
+    $('#table-id').DataTable( {
+		"language": {
+			"url": "https://cdn.datatables.net/plug-ins/1.10.21/i18n/Ukrainian.json",
+		},
+		"scrollX": true,
+	} );
+} );
 </script>
 {% else %}
-    <p>No companies are available.</p>
+    <p>Немає компаній, які можна показати</p>
 {% endif %}
 {% endblock content %}

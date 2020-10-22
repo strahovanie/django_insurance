@@ -6,25 +6,22 @@
     <h2 style="text-align: center">Вхід</h2>
     <form method="post">
         {% csrf_token %}
-        {% for field in form %}
-            {{ field.label_tag }}<br>
-            {{ field }}
-            {% for error in field.errors %}
-                <p style="color: red">{{ error }}</p>
-            {% endfor %}
-            {% if login_error %}
-                {{ login_error }}
-            {% endif %}
-        {% endfor %}
+        {{ form.as_p }}
         <div class="col-md-20 text-center">
             <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 100px">Увійти</button>
             <a href="{% url 'insurance_app:password_reset' %}">
                 <button type="button" class="btn btn-dark" style="margin-top: 20px; width: 130px"> Забув пароль</button>
             </a>
         </div>
+        <input type="hidden" name="next" value="{{ next }}">
     </form>
 </div>
+<style>
+    .errorlist {
+    color: red
+    }
+</style>
 {% else %}
-Ви все увійшли в аккаунт
+Ви вже увійшли в аккаунт
 {% endif %}
 {% endblock %}

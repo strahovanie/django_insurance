@@ -17,6 +17,7 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 import threading
 from .processor import Processor
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def index(request):
@@ -201,52 +202,9 @@ def update_company(request):
         print(db_obj.upload_companies(tuple_obj[0]) + '2')
     return HttpResponse("Updated")
 
-
-def login_user(request):
-
-    if request.method == 'POST':
-        user_form = LoginForm(data=request.POST)
-        user = authenticate(username=user_form.data['username'],password=user_form.data['password'])
-        if user is not None:
-            auth.login(request, user)
-            return redirect('insurance_app:index')
-        else:
-            form = LoginForm()
-            return render(request,'insurance_app/login_user.html',{'login_error':'User is not found','form':form})
-    else:
-        form = LoginForm()
-        return render(request, 'insurance_app/login_user.html', context={'form':form})
-
 def logout(request):
     auth.logout(request)
     return redirect('insurance_app:index')
-
-#default_token_generator
-def reset_password(request):
-    if request.method == 'POST':
-        form1 = PasswordResetForm(request.POST)
-        if form1.is_valid():
-            user = form1.save()
-            user.is_active = False
-            user.save()
-            current_site = get_current_site(request)
-            mail_subject = 'Активация вашего аккаунта'
-            message = render_to_string('insurance_app/acc_active_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid':urlsafe_base64_encode(force_bytes(user.pk)),
-                'token':account_activation_token.make_token(user),
-            })
-            to_email = form1.cleaned_data.get('email')
-            domain = to_email.split('@')[1]
-            email = EmailMessage(
-                        mail_subject, message, to=[to_email]
-            )
-            email.send()
-            return render(request, 'insurance_app/activate_account.html', {'domain':domain})
-    else:
-        form1 = PasswordResetForm()
-    return render(request, 'insurance_app/password_reset_form.html', {'form1': form1})
 
 def register(request):
     if request.method == 'POST':
@@ -283,6 +241,9 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
+        form = UserProfileForm({'user': user})
+        post = form.save()
+        post.save()
         login(request, user)
         return redirect('insurance_app:add_userprofile')
     else:
@@ -292,13 +253,12 @@ def add_userprofile(request):
 
     if request.method == 'POST':
         user = request.user
-        post_values = request.POST.copy()
-        post_values['user'] = user
-        form = UserProfileForm(post_values)
+        form = UserProfileForm(request.POST, instance=user.userprofile)
         if form.is_valid():
             post1 = form.save(commit=False)
             post1.save()
             return redirect('insurance_app:index')
     else:
-        form = UserProfileForm()
+        user = request.user
+        form = UserProfileForm(instance=user.userprofile)
     return render(request, 'insurance_app/add_userprofile.html', {'form': form})

@@ -26,8 +26,9 @@ SECRET_KEY = 'e$-a_l(5y=vshlhkjus9uux=_71@qi=aezy%oh$sc2&@cp)45g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.88.229','127.0.0.1']
 
+LOGIN_REDIRECT_URL = '/insurance_app/'
 
 # Application definition
 

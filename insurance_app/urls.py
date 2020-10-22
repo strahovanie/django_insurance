@@ -3,13 +3,13 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
-from .forms import MyPasswordResetForm, MySetPasswordForm, MyPasswordChangeForm
+from .forms import MyPasswordResetForm, MySetPasswordForm, MyPasswordChangeForm, MyAuthenticationForm
 app_name='insurance_app'
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('admin_page', views.admin_page, name='admin_page'),
-    path('login_user', views.login_user, name='login_user'),
+    path('login_user', auth_views.LoginView.as_view(template_name ='insurance_app/login_user.html', form_class = MyAuthenticationForm, redirect_field_name = 'index'), name='login_user'),
     path('password/reset/', auth_views.PasswordResetView.as_view(template_name ='insurance_app/password_reset_form.html', form_class = MyPasswordResetForm,
     email_template_name = 'insurance_app/password_reset_email.html', success_url = reverse_lazy('insurance_app:password_reset_done')), name='password_reset'),
     path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name ='insurance_app/password_reset_done.html'), name='password_reset_done'),

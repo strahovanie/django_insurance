@@ -5,18 +5,20 @@
     <h2 style="text-align: center">Реєстрація</h2>
     <form method="post">
         {% csrf_token %}
-        {% for field in form1 %}
-            {{ field.label_tag }}<br>
-            {{ field }}
-            {% for error in field.errors %}
-                <p style="color: red">{{ error }}</p>
-            {% endfor %}
-        {% endfor %}
+        {{ form1.as_p }}
         <div class="col-md-20 text-center">
             <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 200px">Зареєструватися</button>
         </div>
     </form>
 </div>
+<style>
+    .errorlist {
+    color: red
+    }
+    .helptext{
+    color: #2211a8;
+    }
+</style>
 {% else %}
 Ви все увійшли в аккаунт
 {% endif %}

@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth.forms import *
-from .classes import custom_password_validators_help_text_html
+from .custom_validators import custom_password_validators_help_text_html
 
 # from django_webix.forms import WebixModelForm
 
@@ -11,13 +11,15 @@ class UserProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = ['mobile_phone','work_phone','email2']
+        fields = ['user','mobile_phone','work_phone','email2']
         labels = {
+            "user": '',
             "mobile_phone": "Мобільний телефон",
             "work_phone": "Робочий телефон",
             "email2": "Додаткова електронна пошта"
         }
         widgets = {
+            'user': forms.TextInput(attrs={'hidden':'true'}),
             'mobile_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'work_phone': forms.TextInput(attrs={'class': 'form-control'}),
             'email2': forms.TextInput(attrs={'class': 'form-control'}),
@@ -45,6 +47,7 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 class MyPasswordChangeForm(PasswordChangeForm):
+
     error_messages = {
         'password_mismatch': ('Паролі не співпадають'),
     }
@@ -68,9 +71,16 @@ class MyPasswordChangeForm(PasswordChangeForm):
 
 
 class SignupForm(UserCreationForm):
+
+    error_messages = {
+        'password_mismatch': ('Паролі не співпадають'),
+
+    }
+
     password1 = forms.CharField(
         label = "Пароль",
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        help_text=custom_password_validators_help_text_html(),
     )
     password2 = forms.CharField(
         label = "Повторіть пароль",
@@ -81,12 +91,22 @@ class SignupForm(UserCreationForm):
         fields = ('username', 'email', 'first_name', 'last_name','password1', 'password2')
 
         labels = {
-            "username": "Ім'я користувача",
             "email": "Електронна пошта",
             "first_name": "Ім'я",
             "last_name": "Прізвище",
         }
-
+        help_texts = {
+            'username': "Обов'язкове поле. До 150 символів. Може містити букви, цифри та знаки @/./+/-/_",
+            'email': "Обов'язкове поле",
+        }
+        error_messages = {
+            'username': {
+                'unique': "Користувач з таким ім'ям вже існує",
+            },
+            'email': {
+                'invalid': "Введіть коректну електронну пошту"
+            }
+        }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.TextInput(attrs={'class': 'form-control'}),
@@ -94,7 +114,14 @@ class SignupForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
-class LoginForm(AuthenticationForm):
+class MyAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': (
+            "Користувача з таким ім'ям та паролем не знайдено. Зверніть увагу: можливо "
+            "у вас включений Caps Lock"
+        ),
+        'inactive': ("Цей акаунт неактивний"),
+    }
     username = UsernameField(
         label="Ім'я користувача",
         widget=forms.TextInput(attrs={'autofocus': True, 'class': 'form-control'}))
@@ -103,6 +130,7 @@ class LoginForm(AuthenticationForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'class': 'form-control'}),
     )
+
 
 class MyModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):

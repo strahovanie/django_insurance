@@ -3,7 +3,7 @@
 {% if user.is_authenticated %}
 <div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
     <h2 style="text-align: center;">Добавьте дополнительную <br>информацию</h2>
-<form method="post">
+<form method="post" action="{% url 'insurance_app:add_userprofile' %}">
     {% csrf_token %}
     {{ form }}
     <div class="col-md-20 text-center">

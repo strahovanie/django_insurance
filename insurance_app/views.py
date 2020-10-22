@@ -136,12 +136,18 @@ def add_company(request):
 def add_chosen_company(request):
     db_obj = DatabaseAccess()
     choice_id = request.POST['company']
+    current_company = Company.objects.get(id=choice_id)
     address = request.POST['address']
+    if address == '':
+        address = current_company.F_ADR
     bank_props = request.POST['bank_props']
     position = request.POST['position']
+    if position == '':
+        position = current_company.position
     pib = request.POST['pib']
+    if pib == '':
+        pib = current_company.K_NAME
     action_base = request.POST['action_base']
-    current_company = Company.objects.get(id=choice_id)
     user = request.user
     db_obj.insert_add_request(user, current_company, address, bank_props, position, pib, action_base, 'add')
     print('Action "add" is added to requests table')

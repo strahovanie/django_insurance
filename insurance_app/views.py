@@ -98,23 +98,6 @@ def admin_page(request):
     }
     return HttpResponse(template.render(context, request))
 
-def change_account_password(request):
-    user = request.user
-    template = loader.get_template('insurance_app/change_account_password.html')
-    if request.method == "POST":
-        form = MyPasswordChangeForm(data=request.POST, user=user)
-        if form.is_valid():
-            post3 = form.save(commit=False)
-            post3.save()
-            auth.login(request, user)
-            return redirect('insurance_app:index')
-    else:
-        form = MyPasswordChangeForm(user=user)
-    context = {
-        'user' : user,
-        'form': form,
-    }
-    return HttpResponse(template.render(context, request))
 
 def add_company(request):
     user = request.user

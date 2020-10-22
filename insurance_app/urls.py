@@ -3,22 +3,25 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
+from .forms import MyPasswordResetForm, MySetPasswordForm, MyPasswordChangeForm
 app_name='insurance_app'
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('admin_page', views.admin_page, name='admin_page'),
-    path('change_account_password', views.change_account_password, name='change_account_password'),
     path('login_user', views.login_user, name='login_user'),
-    path('password/reset/', auth_views.PasswordResetView.as_view(template_name ='insurance_app/password_reset_form.html',
-  email_template_name = 'insurance_app/password_reset_email.html', success_url = reverse_lazy('insurance_app:password_reset_done')), name='password_reset'),
+    path('password/reset/', auth_views.PasswordResetView.as_view(template_name ='insurance_app/password_reset_form.html', form_class = MyPasswordResetForm,
+    email_template_name = 'insurance_app/password_reset_email.html', success_url = reverse_lazy('insurance_app:password_reset_done')), name='password_reset'),
     path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name ='insurance_app/password_reset_done.html'), name='password_reset_done'),
     path('password/reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(success_url = reverse_lazy('insurance_app:password_reset_complete'),template_name ='insurance_app/password_reset_confirm.html'),
+        auth_views.PasswordResetConfirmView.as_view(form_class = MySetPasswordForm, success_url = reverse_lazy('insurance_app:password_reset_complete'),template_name ='insurance_app/password_reset_confirm.html'),
         name='password_reset_confirm'),
     path('password/reset/complete/',
         auth_views.PasswordResetCompleteView.as_view(template_name ='insurance_app/password_reset_complete.html'),
         name='password_reset_complete'),
+    path('password/change/', auth_views.PasswordChangeView.as_view(template_name ='insurance_app/password_change_form.html',
+                                                                   form_class = MyPasswordChangeForm,success_url = reverse_lazy('insurance_app:password_change_done') ), name='password_change'),
+    path('password/change/done/', auth_views.PasswordChangeDoneView.as_view(template_name ='insurance_app/password_change_done.html'), name='password_change_done'),
     path('add_userprofile',views.add_userprofile,name='add_userprofile'),
     path('logout', views.logout, name='logout'),
     path('register',views.register,name='register'),

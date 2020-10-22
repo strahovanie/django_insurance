@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-
+{% if not user.is_authenticated %}
 <div class="center-block" style="display: block; margin: auto; width: 700px; margin-top: 60px">
     <h2 style="text-align: center">Реєстрація</h2>
     <form method="post">
@@ -17,4 +17,7 @@
         </div>
     </form>
 </div>
+{% else %}
+Ви все увійшли в аккаунт
+{% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+{% if user.is_authenticated %}
 <div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
     <h2 style="text-align: center;">Добавьте дополнительную <br>информацию</h2>
 <form method="post">
@@ -10,4 +11,7 @@
     </div>
 </form>
 </div>
+{% else %}
+Ви не зареєстровані
+{% endif %}
 {% endblock content %}

@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth.forms import *
+from .classes import custom_password_validators_help_text_html
 
 # from django_webix.forms import WebixModelForm
 
@@ -44,7 +45,9 @@ class UserUpdateForm(forms.ModelForm):
         }
 
 class MyPasswordChangeForm(PasswordChangeForm):
-
+    error_messages = {
+        'password_mismatch': ('Паролі не співпадають'),
+    }
     old_password = forms.CharField(
         label=("Старий пароль"),
         strip=False,
@@ -55,6 +58,7 @@ class MyPasswordChangeForm(PasswordChangeForm):
         label=("Новий пароль"),
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'class':'form-control'}),
+        help_text=custom_password_validators_help_text_html()
     )
     new_password2 = forms.CharField(
         label=("Повторіть новий пароль"),
@@ -124,7 +128,7 @@ class AddCompanyForm(forms.ModelForm):
             'pib' : 'ПІБ',
             'action_base': 'На якій основі дієте',
         }
-
+        help_text = {'action_base':'sfdde'}
         widgets = {
             'address': forms.TextInput(attrs={'class': 'form-control'}),
             'bank_props': forms.TextInput(attrs={'class': 'form-control'}),
@@ -142,3 +146,36 @@ class DeleteCompanyForm(forms.ModelForm):
     class Meta:
         model = CompanyUser
         fields = ['company']
+
+class MyPasswordResetForm(PasswordResetForm):
+
+    email = forms.EmailField(
+        label=("Електронна пошта"),
+        max_length=254,
+        widget=forms.EmailInput(attrs={'autocomplete': 'email', 'class': 'form-control'})
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email__iexact=email, is_active=True).exists():
+            raise ValidationError("Користувач не зареєстрован на цю електронну пошту")
+
+        return email
+
+
+class MySetPasswordForm(SetPasswordForm):
+
+    error_messages = {
+        'password_mismatch': ('Паролі не співпадають'),
+    }
+    new_password1 = forms.CharField(
+        label=("Новий пароль"),
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-control'}),
+        strip=False,
+        help_text=custom_password_validators_help_text_html(),
+    )
+    new_password2 = forms.CharField(
+        label=("Повторіть пароль"),
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-control'}),
+    )

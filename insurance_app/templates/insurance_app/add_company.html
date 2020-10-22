@@ -55,7 +55,7 @@ $(document).ready(function () {
             <form method="POST" action="{% url 'insurance_app:add_chosen_company' %}">
                 {% csrf_token %}
                 {{ form3.as_table }}
-                <p style="color: blue; height: 15px">*поля окрім компанії необовязкові і будуть заповнені автоматично, якщо ви нічого не вкажете</p>
+                <p style="color: #2211a8; height: 15px">*поля окрім компанії необовязкові і будуть заповнені автоматично, якщо ви нічого не вкажете</p>
                 <button type="submit" class="btn btn-dark" id="add" style="margin-top: 20px">Додати</button>
              </form>
         </div>

@@ -8,6 +8,21 @@ from .forms import UserProfileForm
 
 class Updates:
 
+    def gai(self,number):
+        url = "https://baza-gai.com.ua/nomer/" + number
+        r = requests.get(url, headers={"Accept": "application/json"})
+        data = r.json()
+        context = {}
+        print(data)
+        for operation in data['operations']:
+            if operation['isLast'] and not data['stolen']:
+                context['engine_capacity'] = operation['notes'].split(',')[-1].strip()
+                context['model_year'] = operation['modelYear']
+                context['brand'] = operation['vendor']
+                context['model'] = operation['model']
+                context['address'] = operation['address']
+        return context
+
     def parser(self):
         rows = Company.objects.all()
         last_row = rows.last()

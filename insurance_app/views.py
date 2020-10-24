@@ -262,3 +262,14 @@ def add_userprofile(request):
         user = request.user
         form = UserProfileForm(instance=user.userprofile)
     return render(request, 'insurance_app/add_userprofile.html', {'form': form})
+
+def auto_insurance(request):
+    form = AutoInsurance()
+    return render(request, 'insurance_app/auto_insurance.html', {'form': form})
+
+@csrf_exempt
+def auto_fill(request):
+    number = request.POST["number"]
+    update_obj = Updates()
+    context = update_obj.gai(number)
+    return JsonResponse({'context':context})

@@ -33,4 +33,6 @@ urlpatterns = [
     path('delete_chosen_company/',views.delete_chosen_company,name='delete_chosen_company'),
     path('activate/<uidb64>/<token>/',views.activate, name='activate'),
     path('update_database/',views.update_database, name='update_database'),
+    path('auto_insurance', views.auto_insurance, name='auto_insurance'),
+    path('auto_fill/',views.auto_fill, name='auto_fill'),
 ]

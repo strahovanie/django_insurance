@@ -207,3 +207,19 @@ class MySetPasswordForm(SetPasswordForm):
         strip=False,
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-control'}),
     )
+
+class AutoInsurance(forms.Form):
+    name = forms.CharField(label="Ім'я",widget=forms.TextInput(attrs={'class': 'form-control'}))
+    surname = forms.CharField(label='Прізвище',widget=forms.TextInput(attrs={'class': 'form-control'}))
+    transport_type = forms.ChoiceField(choices=(("1", "Авто"),
+                                                ("2", "Мотоцикл"),
+                                                ("3", "Вантажівка"),
+                                                ("4", "Автобус"),
+                                                ("5", "Причіп"),),
+                                       label='Вид транспорту',widget=forms.Select(attrs={'class': 'form-control'}))
+    number = forms.CharField(label='Номерний знак',widget=forms.TextInput(attrs={'class': 'form-control'}))
+    engine_capacity = forms.CharField(label="Об'єм двигуна",widget=forms.TextInput(attrs={'class': 'form-control'}))
+    model_year = forms.CharField(label="Рік випуску авто",widget=forms.TextInput(attrs={'class': 'form-control'}))
+    brand = forms.CharField(label="Марка автомобіля",widget=forms.TextInput(attrs={'class': 'form-control'}))
+    model = forms.CharField(label="Модель автомобіля",widget=forms.TextInput(attrs={'class': 'form-control'}))
+    address = forms.CharField(label="Адреса",widget=forms.TextInput(attrs={'class': 'form-control'}))

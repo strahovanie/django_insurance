@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#auto_fill").bind("click", function(){
+            console.log(document.getElementById('id_number').value);
+            $.ajax({
+                type:"POST",
+                url: 'auto_fill/',
+                data: {
+                    number: document.getElementById('id_number').value,
+                },
+                success: function(data){
+                    for (var i of Object.keys(data.context)) {
+                    console.log(typeof data.context[i]);
+                        $("#id_"+i).val(data.context[i]);
+                    }
+                },
+                error: function() {
+                    $("#auto_error").text('Введіть номер машини');
+                }
+            });
+        });
+    });
+</script>
+<div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
+    <h2 style="text-align: center;">Автоцивілка</h2>
+    <div style="display:inline-block;">
+        <button id="auto_fill" class="btn btn-dark" style="margin-top: 20px; width: 200px">Автозаповнення по номеру машини</button>
+    </div>
+    <div style="display:inline-block; margin-left: 110px;">
+        <h5 id="auto_error" style="color: red"></h5>
+    </div>
+
+<form method="post" action="{% url 'insurance_app:add_userprofile' %}">
+    {% csrf_token %}
+    {{ form }}
+    <div class="col-md-20 text-center">
+    <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 100px">Купити</button>
+    </div>
+</form>
+</div>
+{% endblock content %}

@@ -1,6 +1,10 @@
 * {
 margin:0;
 }
+@viewport {
+   width: device-width;
+   zoom:1;
+}
 body {
  height: 100%;
  background-image:url('/static/media/back.png');

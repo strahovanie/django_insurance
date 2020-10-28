@@ -23,21 +23,63 @@ from django.core.exceptions import ObjectDoesNotExist
 def index(request):
     companies = Company.objects.all()
     template = loader.get_template('insurance_app/index.html')
+    if request.user_agent.is_mobile:
+        template = loader.get_template('insurance_app/mobile/index.html')
+    print(template)
     context = {
         'companies': companies,
     }
     return HttpResponse(template.render(context, request))
 
+def company_list(request):
+    user = request.user
+    try:
+        user_companies = CompanyUser.objects.filter(user=user)
+    except:
+        user_companies = None
+    return render(request, 'insurance_app/company_list.html', {'user_companies': user_companies})
+
+@csrf_exempt
+def add_info_to_company(request, company_IM_NUMIDENT):
+    db_obj = DatabaseAccess()
+    user = request.user
+    company_info = CompanyInfo.objects.get(IM_NUMIDENT = company_IM_NUMIDENT)
+    address = request.POST['info_address']
+    bank_props = request.POST['bank_props']
+    position = request.POST['position']
+    pib = request.POST['pib']
+    action_base = request.POST['action_base']
+    db_obj.insert_change_request(user, company_info, address, bank_props, position, pib, action_base)
+    return redirect('insurance_app:company_detail', company_IM_NUMIDENT=company_IM_NUMIDENT)
+
+def company_detail(request, company_IM_NUMIDENT):
+    last_date = Company.objects.last().update_date
+    str_last_date = last_date.strftime("%d-%m-%Y %H:%M")
+    user_flag = False
+    user = request.user
+    company_info = CompanyInfo.objects.get(IM_NUMIDENT = company_IM_NUMIDENT)
+    form1 = AddInfoToCompany(instance=company_info)
+    try:
+        company = Company.objects.get(IM_NUMIDENT=company_IM_NUMIDENT, update_date=last_date)
+        rows = CompanyUser.objects.filter(user=user)
+        for row in rows:
+            if row.company_info.IM_NUMIDENT == company.IM_NUMIDENT:
+                user_flag = True
+    except ObjectDoesNotExist:
+        company = None
+    return render(request, 'insurance_app/company_detail.html', {'company': company, 'user_flag': user_flag, 'str_last_date':str_last_date, 'form1':form1})
+
+
 @csrf_exempt
 def update_database(request):
     if request.is_ajax() and request.method == 'POST':
         alert_data = request.POST["alert_data"]
-        if alert_data.strip() == 'None':
+        if int(alert_data) > 7:
             processor = Processor()
             thread = threading.Thread(target=processor.update_company)
             thread.start()
             return JsonResponse({'context': 'База даних компаній буде оновлена'})
-        elif int(alert_data) > 7:
+        elif alert_data.strip() == 'None':
             processor = Processor()
             thread = threading.Thread(target=processor.load_company)
             thread.start()
@@ -106,7 +148,8 @@ def add_company(request):
     last_date = last_company.update_date
     companies = Company.objects.filter(update_date = last_date)
     template = loader.get_template('insurance_app/add_company.html')
-    user_companies = CompanyUser.objects.filter(user=user)
+    if request.user_agent.is_mobile:
+        template = loader.get_template('insurance_app/mobile/add_company.html')
     if request.method == "POST":
         form1 = UserUpdateForm(request.POST,instance=user)
         form2 = UserProfileForm(request.POST,instance=user.userprofile)
@@ -119,8 +162,8 @@ def add_company(request):
     else:
         form1 = UserUpdateForm(instance=user)
         form2 = UserProfileForm(instance=user.userprofile)
-        form3 = AddCompanyForm()
-        form4 = DeleteCompanyForm()
+        form3 = AddOrDeleteCompanyForm()
+        form4 = AddOrDeleteCompanyForm()
         form4.fields['company']._set_queryset(CompanyUser.objects.filter(user = user))
     context = {
         'user' : user,
@@ -129,7 +172,6 @@ def add_company(request):
         'form2': form2,
         'form3': form3,
         'form4': form4,
-        'user_companies': user_companies
     }
     return HttpResponse(template.render(context, request))
 
@@ -138,19 +180,13 @@ def add_chosen_company(request):
     db_obj = DatabaseAccess()
     choice_id = request.POST['company']
     current_company = Company.objects.get(id=choice_id)
-    address = request.POST['address']
-    if address == '':
-        address = current_company.F_ADR
-    bank_props = request.POST['bank_props']
-    position = request.POST['position']
-    if position == '':
-        position = current_company.position
-    pib = request.POST['pib']
-    if pib == '':
-        pib = current_company.K_NAME
-    action_base = request.POST['action_base']
+    try:
+        company_info = CompanyInfo.objects.get(IM_NUMIDENT = current_company.IM_NUMIDENT)
+    except:
+        db_obj.create_company_info(current_company.IM_NUMIDENT, current_company.IAN_FULL_NAME)
+        company_info = CompanyInfo.objects.get(IM_NUMIDENT=current_company.IM_NUMIDENT)
     user = request.user
-    db_obj.insert_add_request(user, current_company, address, bank_props, position, pib, action_base, 'add')
+    db_obj.insert_request(user, company_info, 'add')
     print('Action "add" is added to requests table')
     return redirect('insurance_app:add_company')
 
@@ -158,8 +194,7 @@ def add_chosen_company(request):
 def delete_chosen_company(request):
     db_obj = DatabaseAccess()
     choice_id = request.POST['company']
-    current_company = CompanyUser.objects.get(id=choice_id).company
-    print(current_company)
+    company_info = CompanyUser.objects.get(id=choice_id).company_info
     user = request.user
     # fromaddr = 'strahovka.work2020@gmail.com'
     # toaddr = auth_user.email
@@ -168,7 +203,7 @@ def delete_chosen_company(request):
     # username = 'strahovka.work2020@gmail.com'
     # password = 'cdnblpUYBvdlH8'
     # server = smtplib.SMTP('smtp.gmail.com:587')
-    db_obj.insert_delete_request(user, current_company, 'delete')
+    db_obj.insert_request(user, company_info, 'delete')
     print('Action "delete" is added to requests table')
         # server.starttls()
         # server.login(username, password)
@@ -273,3 +308,4 @@ def auto_fill(request):
     update_obj = Updates()
     context = update_obj.gai(number)
     return JsonResponse({'context':context})
+

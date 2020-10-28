@@ -5,6 +5,7 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+from django.utils.translation import gettext_lazy as _
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,blank=True)
@@ -37,9 +38,22 @@ class Company(models.Model):
     update_date = models.DateTimeField(null=True,blank=True)
     changes = models.CharField(max_length=800,null=True,blank=True)
 
+class CompanyInfo(models.Model):
+    IM_NUMIDENT = models.IntegerField(null=False, primary_key=True)
+    IAN_FULL_NAME = models.CharField(max_length=200)
+    info_address = models.CharField(max_length=200, blank=True)
+    bank_props = models.CharField(max_length=200, blank=True)
+    position = models.CharField(max_length=200, blank=True)
+    pib = models.CharField(max_length=200, blank=True)
+    action_base = models.CharField(max_length=200, blank=True)
+
+class CompanyUser(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    company_info = models.ForeignKey(CompanyInfo, on_delete=models.CASCADE)
+
 class Request(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company_info = models.ForeignKey(CompanyInfo, on_delete=models.CASCADE)
     address = models.CharField(max_length=200, blank=True)
     bank_props = models.CharField(max_length=200, blank=True)
     position = models.CharField(max_length=200, blank=True)
@@ -48,12 +62,3 @@ class Request(models.Model):
     action = models.CharField(max_length=200)
     request_date = models.DateTimeField(default=datetime.datetime.now())
     confirm = models.BooleanField(default=False)
-
-class CompanyUser(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    address = models.CharField(max_length=200,blank=True)
-    bank_props = models.CharField(max_length=200,blank=True)
-    position = models.CharField(max_length=200,blank=True)
-    pib = models.CharField(max_length=200,blank=True)
-    action_base = models.CharField(max_length=200,blank=True)

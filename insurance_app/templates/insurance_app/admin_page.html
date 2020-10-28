@@ -72,7 +72,7 @@ $(document).ready(function () {
 });
 </script>
 <div class="table-div" style="margin-left:5px; margin-top:25px;">
-<table id="table-id" class="display dataTable dtr-inline collapsed" data-page-length='10' style="width:99%">
+<table id="table-id" class="display nowrap dataTable dtr-inline collapsed" data-page-length='10' style="width:99%">
     <thead>
         <tr>
             <th id="USERNAME">Ім'я користувача</th>
@@ -83,6 +83,8 @@ $(document).ready(function () {
             <th id="ADDRESS">Адреса</th>
             <th id="BANK_PROPS">Банківські реквізити</th>
             <th id="POSITION">Посада</th>
+            <th id="PIB">ПІБ</th>
+            <th id="ACTION_BASE">На якій основі дія</th>
             <th id="REQUEST_DATE">Дата запиту</th>
             <th id="CONFIRM">Підтвердження</th>
             <th id="CONFIRM_BUTTON">Кнопка підтвердження</th>
@@ -93,13 +95,15 @@ $(document).ready(function () {
             <tr>
                 <td>{{ request.user.username }}</td>
                 <td>{{ request.user.email }}</td>
-                <td>{{ request.company.IAN_FULL_NAME }}</td>
-                <td>{{ request.company.IM_NUMIDENT }}</td>
+                <td>{{ request.company_info.IAN_FULL_NAME }}</td>
+                <td>{{ request.company_info.IM_NUMIDENT }}</td>
                 <td>{{ request.action }}</td>
                 <td>{{ request.address }}</td>
                 <td>{{ request.bank_props }}</td>
                 <td>{{ request.position }}</td>
-                <td>{{ request.request_date}}</td>
+                <td>{{ request.pib }}</td>
+                <td>{{ request.action_base }}</td>
+                <td>{{ request.request_date|date:'d-m-Y H:i'}}</td>
                 <td>{{ request.confirm }}</td>
                 {% if request.confirm == False %}
                 <td><button class="btn btn-dark" id="confirm_request_{{ request.id }}" value="{{ request.id }}">Підтвердити</button></td>

@@ -26,7 +26,7 @@ SECRET_KEY = 'e$-a_l(5y=vshlhkjus9uux=_71@qi=aezy%oh$sc2&@cp)45g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.88.229','127.0.0.1']
+ALLOWED_HOSTS = ['192.168.88.229','127.0.0.1','172.20.10.10']
 
 LOGIN_REDIRECT_URL = '/insurance_app/'
 
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'insurance_app.apps.InsuranceAppConfig',
-    'django_tables2'
+    'django_tables2',
+    'django_user_agents'
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware'
 ]
 
 ROOT_URLCONF = 'insurance.urls'
@@ -101,24 +103,28 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'insurance_app.custom_validators.MyUserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'insurance_app.custom_validators.MyMinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'insurance_app.custom_validators.MyCommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'insurance_app.custom_validators.MyNumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
+LANGUAGES = (
+    ('uk', ('Ukrainian')),
+    ('ru', ('Russian')),
+)
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'uk'
 
 TIME_ZONE = 'UTC'
 
@@ -140,6 +146,7 @@ EMAIL_HOST_USER = 'strahovka.work2020@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdnblpUYBvdlH8'
 EMAIL_PORT = 587
 
+MOBILE_TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'insurance_app/templates/mobile'),)
 # CELERY_BROKER_URL = 'redis://localhost:6379'
 # CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 # CELERY_ACCEPT_CONTENT = ['application/json']

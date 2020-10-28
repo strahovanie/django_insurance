@@ -35,4 +35,7 @@ urlpatterns = [
     path('update_database/',views.update_database, name='update_database'),
     path('auto_insurance', views.auto_insurance, name='auto_insurance'),
     path('auto_fill/',views.auto_fill, name='auto_fill'),
+    path('company_list',views.company_list, name='company_list'),
+    path('company_detail/<int:company_IM_NUMIDENT>',views.company_detail, name='company_detail'),
+    path('add_info_to_company/<int:company_IM_NUMIDENT>',views.add_info_to_company, name='add_info_to_company'),
 ]

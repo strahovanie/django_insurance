@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<div class="center-block" style=" display: block; margin: auto; width: 900px; margin-top: 60px">
+    <h2 style="text-align: center;">Список компаній</h2>
+    {% for i in user_companies %}
+    <div class="box">
+        <div>
+        <p style="margin-top:20px;font-size: 15pt">{{ i.company_info.IAN_FULL_NAME }}</p>
+        </div>
+        <div>
+            <a href="{% url 'insurance_app:company_detail' i.company_info.IM_NUMIDENT %}"><p class="text-info" style="font-size: 14pt">Детальніше</p></a>
+            </div>
+    </div>
+    {% endfor %}
+</div>
+<style>
+    .box div {display:inline-block;}
+</style>
+{% else %}
+Ви не зареєстровані
+{% endif %}
+{% endblock content %}

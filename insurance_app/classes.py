@@ -213,13 +213,21 @@ class DatabaseAccess:
         auth_user=db(db.auth_user.id == id).select().first()
         return auth_user
 
-    def add_company_user(self,user,company, address,bank_props,position,pib,action_base):
-        new_cu = CompanyUser(user=user, company=company, address = address, bank_props = bank_props,
-                             position = position, pib = pib, action_base = action_base)
+    def add_company_user(self,user,company_info):
+        new_cu = CompanyUser(user=user, company_info=company_info)
         new_cu.save()
 
-    def delete_company_user(self,user,company):
-        CompanyUser.objects.get(user=user, company=company).delete()
+    def delete_company_user(self,user,company_info):
+        CompanyUser.objects.get(user=user, company_info=company_info).delete()
+
+    def change_company_info(self, IM_NUMIDENT, address,bank_props,position,pib,action_base):
+        ci = CompanyInfo.objects.get(IM_NUMIDENT = IM_NUMIDENT)
+        ci.info_address = address
+        ci.bank_props = bank_props
+        ci.position = position
+        ci.pib = pib
+        ci.action_base = action_base
+        ci.save()
 
     def get_codes(self, identifier):
         data=[]
@@ -273,55 +281,56 @@ class DatabaseAccess:
 
         return "OK_license"
 
-    def check_company(self, current_company, current_user, action):
+    def check_company(self, company_info, current_user, action):
         try:
-            rows = CompanyUser.objects.filter(user=current_user)
-            for row in rows:
-                print(row)
-                print(row.company.IM_NUMIDENT)
-                print(current_company.IM_NUMIDENT)
-                if row.company.IM_NUMIDENT == current_company.IM_NUMIDENT:
-                    if action == 'add':
-                        return False
-                    elif action == 'delete':
-                        return True
+            row = CompanyUser.objects.get(user=current_user, company_info = company_info)
             if action == 'add':
-                return True
-            elif action == 'delete':
                 return False
+            elif action == 'delete' or action == 'change':
+                return True
         except:
             if action == 'add':
                 return True
-            elif action == 'delete':
+            elif action == 'delete' or action == 'change':
                 return False
 
-
-    def insert_add_request(self, user, company, address, bank_props, position, pib, action_base, action):
-
-        tmp = Request(user = user, company = company, address = address, bank_props = bank_props,
-                      position = position, pib = pib, action_base = action_base, action = action)
+    def create_company_info(self, IM_NUMIDENT, IAN_FULL_NAME):
+        tmp = CompanyInfo(IM_NUMIDENT = IM_NUMIDENT, IAN_FULL_NAME = IAN_FULL_NAME)
         tmp.save()
 
-    def insert_delete_request(self, user, company, action):
+    def insert_request(self, user, company_info, action):
 
-        tmp = Request(user = user, company = company, action = action)
+        tmp = Request(user = user, company_info = company_info, action = action)
+        tmp.save()
+
+    def insert_change_request(self, user, company_info, address, bank_props, position, pib, action_base):
+
+        tmp = Request(user = user, company_info = company_info, address = address,
+                      bank_props = bank_props, position = position, pib = pib, action_base = action_base, action = 'change')
         tmp.save()
 
     def update_company_user(self):
         rows = Request.objects.all()
         for reqst in rows:
             if reqst.action == 'add' and reqst.confirm == True:
-                check = self.check_company(reqst.company, reqst.user, 'add')
+                check = self.check_company(reqst.company_info, reqst.user, 'add')
                 if check:
-                    self.add_company_user(reqst.user, reqst.company, reqst.address, reqst.bank_props, reqst.position,
-                                          reqst.pib, reqst.action_base)
+                    self.add_company_user(reqst.user, reqst.company_info)
                 Request.objects.get(id = reqst.id).delete()
             elif reqst.action == 'delete' and reqst.confirm == True:
-                check = self.check_company(reqst.company, reqst.user, 'delete')
+                check = self.check_company(reqst.company_info, reqst.user, 'delete')
                 print(check)
                 if check:
                     print("JJJJJJJJJJJJJ")
-                    self.delete_company_user(reqst.user, reqst.company)
+                    self.delete_company_user(reqst.user, reqst.company_info)
+                Request.objects.get(id = reqst.id).delete()
+            elif reqst.action == 'change' and reqst.confirm == True:
+                check = self.check_company(reqst.company_info, reqst.user, 'change')
+                print(check)
+                if check:
+                    print("JJJJJJJJJJJJJ")
+                    self.change_company_info(reqst.company_info.IM_NUMIDENT, reqst.address ,
+                                             reqst.bank_props, reqst.position, reqst.pib, reqst.action_base)
                 Request.objects.get(id = reqst.id).delete()
 
     def insert_name(self,name):

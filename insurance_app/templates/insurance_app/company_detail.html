@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if company and user_flag %}
+<div class="center-block" style="display: block; margin: auto; width: 700px; margin-top: 30px;">
+    <div class="card bg-light border-info mb-3" style="width: 45rem; background-color: #ffff">
+        <div class="card-header border-info" style="font-weight:bold">Актуальна інформація про компанію<br>
+            Останнє оновлення: {{str_last_date}}</div>
+        <div class="card-body">
+            <p class="card-text">Назва компанії: {{ company.IAN_FULL_NAME }}</p>
+            <p class="card-text">Тип ФУ: {{ company.FIN_TYPE }}</p>
+            <p class="card-text">Код ЄДРПОУ: {{ company.IM_NUMIDENT }}</p>
+            <p class="card-text">Серія свідоцтва про реєстрацію: {{ company.IAN_RO_SERIA }}</p>
+            <p class="card-text">Номер свідоцтва про реєстрацію: {{ company.IAN_RO_CODE }}</p>
+            <p class="card-text">Дата реєстрації: {{ company.IAN_RO_DT|date:'d-m-Y H:i' }}</p>
+            <p class="card-text">Статус: {{ company.DIC_NAME }}</p>
+            <p class="card-text">Адреса: {{ company.F_ADR }}</p>
+            <p class="card-text">Міжміський телефонний код: {{ company.IA_PHONE_CODE }}</p>
+            <p class="card-text">Телефон: {{ company.IA_PHONE }}</p>
+            <p class="card-text">Email: {{ company.IA_EMAIL }}</p>
+            <p class="card-text">Область: {{ company.IND_OBL }}</p>
+            <p class="card-text">ПІБ керівника: {{ company.K_NAME }}</p>
+            <p class="card-text">Неповна назва: {{ company.abbreviation }}</p>
+            <p class="card-text">Посада керівника: {{ company.position }}</p>
+        </div>
+    </div>
+    <div style="margin-top: 25px">
+        <h4 class="title is-3">Додаткова інформація:</h4>
+        <p>Ви можете додати дані, які потім будуть використовуватися у послугах <br>Адміністратору буде відправлено запит на додання інформації</p>
+        <form method="POST" action="{% url 'insurance_app:add_info_to_company' company.IM_NUMIDENT %}">
+            {% csrf_token %}
+            {{ form1.as_table }}
+            <button type="submit" class="btn btn-dark" style="margin-top: 20px">Додати</button>
+         </form>
+    </div>
+</div>
+{% elif user_flag == False %}
+Ви не маєте доступу до цієї компанії
+{% else %}
+Компанії з таким кодом ЄДРПОУ немає в базі
+{% endif %}
+{% endblock content %}

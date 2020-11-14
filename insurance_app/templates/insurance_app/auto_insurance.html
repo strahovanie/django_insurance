@@ -3,7 +3,7 @@
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script>
     $(document).ready(function () {
-        $("#auto_fill").bind("click", function(){
+        $("#auto-fill").bind("click", function(){
             console.log(document.getElementById('id_number').value);
             $.ajax({
                 type:"POST",
@@ -18,27 +18,106 @@
                     }
                 },
                 error: function() {
-                    $("#auto_error").text('Введіть номер машини');
+                    $("#auto-error").text('Введіть правильний номер машини');
                 }
             });
         });
     });
 </script>
-<div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
-    <h2 style="text-align: center;">Автоцивілка</h2>
-    <div style="display:inline-block;">
-        <button id="auto_fill" class="btn btn-dark" style="margin-top: 20px; width: 200px">Автозаповнення по номеру машини</button>
+<div class="center-block">
+    <h2>Автоцивілка</h2>
+    <div class='auto-button'>
+        <button id="auto-fill" class="btn btn-dark">Автозаповнення по номеру машини</button>
     </div>
-    <div style="display:inline-block; margin-left: 110px;">
-        <h5 id="auto_error" style="color: red"></h5>
+    <div class='auto-text'>
+        <h5 id="auto-error"></h5>
     </div>
 
 <form method="post" action="{% url 'insurance_app:add_userprofile' %}">
     {% csrf_token %}
     {{ form }}
     <div class="col-md-20 text-center">
-    <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 100px">Купити</button>
+    <button id ="buy" type="submit" class="btn btn-dark">Купити</button>
     </div>
 </form>
 </div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 90%;
+    margin-top: 6%;
+    }
+    .auto-button #auto-fill{
+    margin-top: 2%;
+    width: 100%
+    }
+    .auto-text{
+    margin-top: 2%;
+    }
+    .text-center #buy{
+    margin-top: 2%;
+    width: 30%
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 6%;
+    }
+    .auto-button #auto-fill{
+    margin-top: 2%;
+    width: 50%
+    }
+    .auto-text{
+    margin-top: 2%;
+    }
+    .text-center #buy{
+    margin-top: 2%;
+    width: 20%
+    }
+
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 3%;
+    }
+    .center-block h2{
+    text-align: center;
+    }
+    .auto-button{
+    display:inline-block;
+    }
+    .auto-button #auto-fill{
+    margin-top: 2%;
+    width: 100%
+    }
+    .auto-text{
+    display:inline-block;
+    margin-left: 2%;
+    }
+    .text-center #buy{
+    margin-top: 1%;
+    width: 15%
+    }
+}
+.center-block h2{
+    text-align: center;
+}
+.auto-text #auto-error{
+    color: red;
+}
+.errorlist {
+    color: red
+}
+.helptext{
+    color: #2211a8;
+}
+</style>
 {% endblock content %}

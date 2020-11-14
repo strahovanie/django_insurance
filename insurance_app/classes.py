@@ -337,4 +337,17 @@ class DatabaseAccess:
 
         db['name'].insert(name = name)
 
+    def insert_order(self, user, company_info, reporting_date, calc_type):
+        print(len(calc_type))
+        if len(calc_type) > 1:
+            for i in calc_type:
+                print(i)
+                tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, active=True)
+                tmp.save()
+        elif len(calc_type) == 1:
+            tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=calc_type[0], active=True)
+            tmp.save()
+
+
+
 

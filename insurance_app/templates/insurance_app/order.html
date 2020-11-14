@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="center-block">
+    <div class="one">
+        {% if user_orders %}
+        <p>Ви можете замовити:</p>
+        {% endif %}
+    </div>
+    <div class="two form-div">
+    <h2>Зробити замовлення</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="col-md-20 text-center">
+            <button id ='enter' type="submit" class="btn btn-dark">Замовити</button>
+        </div>
+    </form>
+    </div>
+    <div class="three">
+        {% if user_orders %}
+        <h5 class="p-2 mb-2 bg-secondary text-white">Історія замовлень:</h5>
+        {% if user_orders3 %}
+        {% for order in user_orders3 %}
+        <div>
+        <p class="text-info">Замовлення {{order.id}}:
+        {% if order.done %}
+            Виконано
+            {% else %}
+            Не виконано
+            {% endif %}</p>
+        Компанія: {{order.company_info.IAN_FULL_NAME}}<br>
+        Звітня дата: {{order.reporting_date}}<br>
+        Вид розрахунку: {{order.calc_type}}<br>
+        Дата замовлення: {{order.order_date}}
+            <p></p>
+        </div>
+        {% endfor %}
+        <a href="{% url 'insurance_app:order_history' %}">Дивитися всю історію</a>
+        {% else %}
+        {% for order in user_orders %}
+        <div>
+        <p class="text-info">Замовлення {{order.id}}:
+        {% if order.done %}
+            Виконано
+            {% else %}
+            Не виконано
+            {% endif %}</p>
+        Компанія: {{order.company_info.IAN_FULL_NAME}}<br>
+        Звітня дата: {{order.reporting_date}}<br>
+        Вид розрахунку: {{order.calc_type}}<br>
+        Дата замовлення: {{order.order_date}}
+            <p></p>
+        </div>
+        {% endfor %}
+        <a href="{% url 'insurance_app:order_history' %}">Дивитися всю історію</a>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.js-example-basic-single').select2({width: '100%'});
+});
+</script>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    width: 100vw;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    .form-div{
+    width:90%
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display:flex;
+    margin: auto;
+    width: 100%;
+    margin-top: 4%;
+    }
+    .two h2{text-align:center}
+    .two{width:46%;margin:20px}
+    .one,.three{width:22%;margin:40px}
+    .one,.three h5 {text-align:center}
+}
+}
+.center-block h2{
+    text-align: center;
+}
+.one,.three h5 {font-size:20px;}
+.errorlist {
+    color: red
+}
+.select2-container .select2-selection--single {
+    height: 37px;
+    border: 1px solid #d5d7db;
+}
+#load_order{
+    font-size: 12pt;
+    text-align:right;
+}
+</style>
+{% endblock content %}

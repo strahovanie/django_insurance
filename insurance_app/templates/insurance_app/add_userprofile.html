@@ -1,16 +1,63 @@
 {% extends 'base.html' %}
 {% block content %}
-{% if user.is_authenticated %}
-<div class="center-block" style=" display: block; margin: auto; width: 700px; margin-top: 60px">
-    <h2 style="text-align: center;">Додайте додаткову <br>інформацію</h2>
-<form method="post" action="{% url 'insurance_app:add_userprofile' %}">
-    {% csrf_token %}
-    {{ form }}
-    <div class="col-md-20 text-center">
-    <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 100px">Додати</button>
+{% if user.is_authenticated and form != None %}
+<div class="center-block">
+    <div class="form-div">
+        <h2>Додайте інформацію <br> в аккаунт (необов'язково)</h2>
+    <form method="post" action="{% url 'insurance_app:add_userprofile' %}">
+        {% csrf_token %}
+        {{ form }}
+        <div class="col-md-20 text-center">
+            <button id='add' type="submit" class="btn btn-dark">Додати</button>
+        </div>
+    </form>
     </div>
-</form>
 </div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    width: 100vw;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    .form-div{
+    width:90%
+    }
+    #add{
+    margin-top: 5%
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+    #add{
+    margin-top: 3%
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 7%;
+    }
+    #add{
+    margin-top: 3%
+    }
+}
+.center-block h2{
+    text-align: center;
+}
+.errorlist {
+    color: red
+}
+</style>
 {% else %}
 Ви не зареєстровані
 {% endif %}

@@ -1,11 +1,10 @@
-from django import forms
-
-from django.contrib.auth.models import User
 from .models import *
 from django.contrib.auth.forms import *
 from .custom_validators import custom_password_validators_help_text_html
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage
 
-# from django_webix.forms import WebixModelForm
 
 class UserProfileForm(forms.ModelForm):
 
@@ -50,21 +49,25 @@ class MyPasswordChangeForm(PasswordChangeForm):
         for visible in self.visible_fields():
             visible.field.widget.attrs['class'] = 'form-control'
 
-    new_password1 = forms.CharField(
-        label=("Новий пароль"),
-        strip=False,
-        widget=forms.PasswordInput(attrs={'autocomplete': 'current-password', 'class':'form-control'}),
-        help_text=custom_password_validators_help_text_html()
-    )
+    def save(self, commit=True):
+        mail_subject = 'Зміна паролю'
+        message = render_to_string('insurance_app/password_change_email.html', {
+            'domain': settings.DEFAULT_DOMAIN,
+            'user': self.user,
+            'admin_email': settings.EMAIL_HOST_USER
+        })
+        email = EmailMessage(
+            mail_subject, message, to=[getattr(self.user, 'email')]
+        )
+        email.send()
+        password = self.cleaned_data["new_password1"]
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user
 
 
 class SignupForm(UserCreationForm):
-
-    password1 = forms.CharField(
-        label = "Пароль",
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        help_text=custom_password_validators_help_text_html(),
-    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -75,9 +78,6 @@ class SignupForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'first_name', 'last_name','password1', 'password2')
 
-        labels = {
-            'email':"Електронна пошта"
-        }
 
 class MyAuthenticationForm(AuthenticationForm):
 
@@ -87,19 +87,29 @@ class MyAuthenticationForm(AuthenticationForm):
             visible.field.widget.attrs['class'] = 'form-control'
 
 
-class MyModelChoiceField(forms.ModelChoiceField):
+class AddChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        try:
+        return obj.IAN_FULL_NAME
+
+class DeleteChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
             return obj.company_info.IAN_FULL_NAME
-        except:
-            return obj.IAN_FULL_NAME
 
 
-class AddOrDeleteCompanyForm(forms.ModelForm):
+class AddCompanyForm(forms.ModelForm):
 
-    company = MyModelChoiceField(label='Компанії', empty_label="Оберіть компанію...",
+    company = AddChoiceField(label='Компанії', empty_label="Оберіть компанію...",
                                  queryset=Company.objects.filter(update_date = Company.objects.last().update_date),
-                                 widget=forms.Select(attrs={'class':'form-control selectpicker','data-live-search':'true'}))
+                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_add'}))
+    class Meta:
+        model = CompanyUser
+        fields = ['company']
+
+class DeleteCompanyForm(forms.ModelForm):
+
+    company = DeleteChoiceField(label='Компанії', empty_label="Оберіть компанію...",
+                                 queryset=CompanyUser.objects.filter(user = None),
+                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_delete'}))
     class Meta:
         model = CompanyUser
         fields = ['company']
@@ -128,22 +138,37 @@ class AddInfoToCompany(forms.ModelForm):
 
 class MyPasswordResetForm(PasswordResetForm):
 
-    email = forms.EmailField(
-        label=("Електронна пошта"),
-        max_length=254,
-        widget=forms.EmailInput(attrs={'autocomplete': 'email', 'class': 'form-control'})
-    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs['class'] = 'form-control'
 
+class DateInput(forms.DateInput):
+    input_type = 'date'
 
+class OrderForm(forms.ModelForm):
 
-class MySetPasswordForm(SetPasswordForm):
+    company = DeleteChoiceField(label='Компанії', empty_label="Оберіть компанію...",
+                                 queryset=CompanyUser.objects.filter(user = None),
+                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_delete'}))
+    calc_type = forms.MultipleChoiceField(choices=(("1", "1"),
+                                                ("2", "2"),
+                                                ("3", "3"),
+                                                ("4", "4"),
+                                                ("5", "5")), required=True,label="Вид розрахунку",
+                                          widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model = Order
+        fields = ['company','reporting_date','calc_type']
 
-    new_password1 = forms.CharField(
-        label=("Новий пароль"),
-        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password', 'class': 'form-control'}),
-        strip=False,
-        help_text=custom_password_validators_help_text_html(),
-    )
+        labels = {
+            'reporting_date': 'Звітня дата',
+        }
+
+        widgets = {
+            'reporting_date': DateInput(attrs={'class':'form-control'}),
+        }
+
 
 class AutoInsurance(forms.Form):
     name = forms.CharField(label="Ім'я",widget=forms.TextInput(attrs={'class': 'form-control'}))

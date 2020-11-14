@@ -18,14 +18,11 @@ from django.core.mail import EmailMessage
 import threading
 from .processor import Processor
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.utils.datastructures import MultiValueDictKeyError
 
 def index(request):
     companies = Company.objects.all()
     template = loader.get_template('insurance_app/index.html')
-    if request.user_agent.is_mobile:
-        template = loader.get_template('insurance_app/mobile/index.html')
-    print(template)
     context = {
         'companies': companies,
     }
@@ -144,12 +141,7 @@ def admin_page(request):
 
 def add_company(request):
     user = request.user
-    last_company = Company.objects.last()
-    last_date = last_company.update_date
-    companies = Company.objects.filter(update_date = last_date)
     template = loader.get_template('insurance_app/add_company.html')
-    if request.user_agent.is_mobile:
-        template = loader.get_template('insurance_app/mobile/add_company.html')
     if request.method == "POST":
         form1 = UserUpdateForm(request.POST,instance=user)
         form2 = UserProfileForm(request.POST,instance=user.userprofile)
@@ -162,12 +154,11 @@ def add_company(request):
     else:
         form1 = UserUpdateForm(instance=user)
         form2 = UserProfileForm(instance=user.userprofile)
-        form3 = AddOrDeleteCompanyForm()
-        form4 = AddOrDeleteCompanyForm()
+        form3 = AddCompanyForm()
+        form4 = DeleteCompanyForm()
         form4.fields['company']._set_queryset(CompanyUser.objects.filter(user = user))
     context = {
         'user' : user,
-        'companies': companies,
         'form1': form1,
         'form2': form2,
         'form3': form3,
@@ -295,7 +286,9 @@ def add_userprofile(request):
             return redirect('insurance_app:index')
     else:
         user = request.user
-        form = UserProfileForm(instance=user.userprofile)
+        try:
+            form = UserProfileForm(instance=user.userprofile)
+        except: form = None
     return render(request, 'insurance_app/add_userprofile.html', {'form': form})
 
 def auto_insurance(request):
@@ -309,3 +302,50 @@ def auto_fill(request):
     context = update_obj.gai(number)
     return JsonResponse({'context':context})
 
+def order(request):
+    template = loader.get_template('insurance_app/order.html')
+    if request.POST:
+        db_obj = DatabaseAccess()
+        choice_id = request.POST['company']
+        company_info = CompanyUser.objects.get(id=choice_id).company_info
+        print(request.POST)
+        user = request.user
+        reporting_date = request.POST['reporting_date']
+        calc_type = request.POST.getlist('calc_type',False)
+        if calc_type == False:
+            form = OrderForm(request.POST)
+            form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+            context = {
+                'form': form,
+            }
+            return HttpResponse(template.render(context, request))
+        else:
+            db_obj.insert_order(user, company_info, reporting_date, calc_type)
+            return redirect('insurance_app:order')
+    else:
+        user = request.user
+        user_orders = Order.objects.order_by("-id").filter(user=user)
+        if len(user_orders)>3:
+            user_orders3 = Order.objects.order_by("-id").filter(user=user)[:3]
+        else: user_orders3 = []
+        form = OrderForm(instance=user)
+        form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+        context = {
+            'form': form,
+            'user_orders':user_orders,
+            'user_orders3':user_orders3
+        }
+        return HttpResponse(template.render(context, request))
+
+def order_history(request):
+    template = loader.get_template('insurance_app/order_history.html')
+    user = request.user
+    user_orders = Order.objects.order_by("-id").filter(user=user)
+    context = {
+        'user_orders': user_orders,
+    }
+    return HttpResponse(template.render(context, request))
+
+def csrf_failure(request, reason=""):
+    ctx = {'message': 'Виникла помилка. Перевірте, чи підключені cookies у вашому браузері або перезавантажте сторінку, або спробуйте увійти ще раз'}
+    return render(request, 'insurance_app/csrf_failure.html', ctx)

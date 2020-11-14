@@ -29,6 +29,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['192.168.88.229','127.0.0.1','172.20.10.10']
 
 LOGIN_REDIRECT_URL = '/insurance_app/'
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 # Application definition
 
@@ -121,12 +124,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 LANGUAGES = (
     ('uk', ('Ukrainian')),
-    ('ru', ('Russian')),
 )
 
 LANGUAGE_CODE = 'uk'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -146,9 +148,11 @@ EMAIL_HOST_USER = 'strahovka.work2020@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdnblpUYBvdlH8'
 EMAIL_PORT = 587
 
-MOBILE_TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'insurance_app/templates/mobile'),)
+DEFAULT_DOMAIN = 'http://insurance.pythonanywhere.com/insurance_app/'
 # CELERY_BROKER_URL = 'redis://localhost:6379'
 # CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 # CELERY_ACCEPT_CONTENT = ['application/json']
 # CELERY_RESULT_SERIALIZER = 'json'
 # CELERY_TASK_SERIALIZER = 'json'
+
+CSRF_FAILURE_VIEW = 'insurance_app.views.csrf_failure'

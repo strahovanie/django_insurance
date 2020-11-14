@@ -3,7 +3,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
-from .forms import MyPasswordResetForm, MySetPasswordForm, MyPasswordChangeForm, MyAuthenticationForm
+from .forms import MyPasswordResetForm, MyPasswordChangeForm, MyAuthenticationForm
 app_name='insurance_app'
 
 urlpatterns = [
@@ -14,7 +14,7 @@ urlpatterns = [
     email_template_name = 'insurance_app/password_reset_email.html', success_url = reverse_lazy('insurance_app:password_reset_done')), name='password_reset'),
     path('password/reset/done/', auth_views.PasswordResetDoneView.as_view(template_name ='insurance_app/password_reset_done.html'), name='password_reset_done'),
     path('password/reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(form_class = MySetPasswordForm, success_url = reverse_lazy('insurance_app:password_reset_complete'),template_name ='insurance_app/password_reset_confirm.html'),
+        auth_views.PasswordResetConfirmView.as_view(form_class = MyPasswordChangeForm, success_url = reverse_lazy('insurance_app:password_reset_complete'),template_name ='insurance_app/password_reset_confirm.html'),
         name='password_reset_confirm'),
     path('password/reset/complete/',
         auth_views.PasswordResetCompleteView.as_view(template_name ='insurance_app/password_reset_complete.html'),
@@ -38,4 +38,6 @@ urlpatterns = [
     path('company_list',views.company_list, name='company_list'),
     path('company_detail/<int:company_IM_NUMIDENT>',views.company_detail, name='company_detail'),
     path('add_info_to_company/<int:company_IM_NUMIDENT>',views.add_info_to_company, name='add_info_to_company'),
+    path('order',views.order, name='order'),
+    path('order_history',views.order_history, name='order_history'),
 ]

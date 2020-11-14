@@ -2,19 +2,28 @@
 {% block content %}
 {% if user.is_authenticated %}
 <div class="center-block">
-    <h2>Список компаній</h2>
-    {% for i in user_companies %}
+    {% if user_orders %}
+    <h2>Історія замовлень:</h2>
+    {% for order in user_orders %}
     <div class="box">
         <div>
-            <p id='company-information'>{{ i.company_info.IAN_FULL_NAME }}</p>
-        </div>
-        <div>
-            <a href="{% url 'insurance_app:company_detail' i.company_info.IM_NUMIDENT %}">
-                <p class="text-info">Детальніше</p>
-            </a>
+            <p id='order' class="text-info">Замовлення {{order.id}}:
+            {% if order.done %}
+            Виконано
+            {% else %}
+            Не виконано
+            {% endif %}</p>
+            Компанія: {{order.company_info.IAN_FULL_NAME}}<br>
+            Звітня дата: {{order.reporting_date}}<br>
+            Вид розрахунку: {{order.calc_type}}<br>
+            Дата замовлення: {{order.order_date}}
+            <p></p>
         </div>
     </div>
     {% endfor %}
+    {% else %}
+    У вас поки немає замовлень
+    {% endif %}
 </div>
 <style>
 @media screen and (orientation: portrait) {
@@ -44,12 +53,12 @@
 .center-block h2{
     text-align: center;
 }
-#company-information{
-    margin-top:3%;
+#order{
     font-size: 15pt
 }
-.text-info{
-    font-size: 14pt
+#load_order{
+    font-size: 12pt;
+    text-align:right;
 }
 </style>
 {% else %}

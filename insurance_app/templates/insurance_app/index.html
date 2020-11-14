@@ -6,8 +6,8 @@
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 
 {% if companies %}
-<div class="table-div" style="margin-left:5px; margin-top:25px;">
-<table id="table-id" class="display nowrap dataTable dtr-inline collapsed " data-page-length='10' style="width:100%">
+<div class="table-div">
+<table id="table-id" class="display nowrap dataTable dtr-inline collapsed " data-page-length='10'>
     <thead>
                         <tr >
                             <th id="ID">ID</th>
@@ -57,6 +57,11 @@
     <tbody>
 </table>
 </div>
+<style>
+    .table-div{
+    margin-top:25px;
+    }
+</style>
 <script>
 $(document).ready(function() {
     $('#table-id').DataTable( {

@@ -1,23 +1,71 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if not user.is_authenticated %}
-<div class="center-block" style="display: block; margin: auto; width: 700px; margin-top: 60px">
-    <h2 style="text-align: center">Реєстрація</h2>
+<div class="center-block">
+    <h2>Реєстрація</h2>
     <form method="post">
         {% csrf_token %}
         {{ form1.as_p }}
         <div class="col-md-20 text-center">
-            <button type="submit" class="btn btn-dark" style="margin-top: 20px; width: 200px">Зареєструватися</button>
+            <button type="submit" class="btn btn-dark">Зареєструватися</button>
         </div>
     </form>
 </div>
 <style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 10%;
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+    .center-block h2{
+    text-align: center;
+    }
     .errorlist {
     color: red
     }
     .helptext{
     color: #2211a8;
     }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 3%;
+    }
+    .center-block h2{
+    text-align: center;
+    }
+    .errorlist {
+    color: red
+    }
+    .helptext{
+    color: #2211a8;
+    }
+}
+.center-block h2{
+    text-align: center;
+}
+.errorlist {
+    color: red
+}
+.helptext{
+    color: #2211a8;
+}
+ul li {
+    color:#2211a8
+}
 </style>
 {% else %}
 Ви все увійшли в аккаунт

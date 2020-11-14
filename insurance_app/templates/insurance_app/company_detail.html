@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if company and user_flag %}
-<div class="center-block" style="display: block; margin: auto; width: 700px; margin-top: 30px;">
-    <div class="card bg-light border-info mb-3" style="width: 45rem; background-color: #ffff">
-        <div class="card-header border-info" style="font-weight:bold">Актуальна інформація про компанію<br>
+<div class="center-block">
+    <div class="card bg-light border-info mb-3">
+        <div class="card-header border-info">Актуальна інформація про компанію<br>
             Останнє оновлення: {{str_last_date}}</div>
         <div class="card-body">
             <p class="card-text">Назва компанії: {{ company.IAN_FULL_NAME }}</p>
@@ -23,16 +23,59 @@
             <p class="card-text">Посада керівника: {{ company.position }}</p>
         </div>
     </div>
-    <div style="margin-top: 25px">
+    <div class='additional-info'>
         <h4 class="title is-3">Додаткова інформація:</h4>
         <p>Ви можете додати дані, які потім будуть використовуватися у послугах <br>Адміністратору буде відправлено запит на додання інформації</p>
         <form method="POST" action="{% url 'insurance_app:add_info_to_company' company.IM_NUMIDENT %}">
             {% csrf_token %}
             {{ form1.as_table }}
-            <button type="submit" class="btn btn-dark" style="margin-top: 20px">Додати</button>
+            <div class="col-md-20 text-center">
+            <button id='add' type="submit" class="btn btn-dark">Додати</button>
+            </div>
          </form>
     </div>
 </div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 90%;
+    margin-top: 10%;
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 3%;
+    }
+}
+.card{
+    width: 100%;
+}
+.card .card-header {
+    font-weight:bold
+}
+.title{
+    text-align: center;
+}
+.additional-info{
+    margin-top: 2%
+}
+#add {
+    margin-top: 3%
+}
+</style>
 {% elif user_flag == False %}
 Ви не маєте доступу до цієї компанії
 {% else %}

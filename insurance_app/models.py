@@ -22,7 +22,7 @@ class UserProfile(models.Model):
 class Company(models.Model):
     IAN_FULL_NAME = models.CharField(max_length=200)
     FIN_TYPE = models.CharField(max_length=200)
-    IM_NUMIDENT = models.IntegerField(null=False)
+    IM_NUMIDENT = models.CharField(max_length=8,null=False)
     IAN_RO_SERIA = models.CharField(max_length=200,null=True,blank=True)
     IAN_RO_CODE = models.IntegerField(null=True,blank=True)
     IAN_RO_DT = models.DateTimeField(null=True,blank=True)
@@ -39,7 +39,7 @@ class Company(models.Model):
     changes = models.CharField(max_length=800,null=True,blank=True)
 
 class CompanyInfo(models.Model):
-    IM_NUMIDENT = models.IntegerField(null=False, primary_key=True)
+    IM_NUMIDENT = models.CharField(max_length=8,null=False, primary_key=True)
     IAN_FULL_NAME = models.CharField(max_length=200)
     info_address = models.CharField(max_length=200, blank=True)
     bank_props = models.CharField(max_length=200, blank=True)

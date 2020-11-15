@@ -160,12 +160,11 @@ class DataModify:
                         code = code.replace(i, '')
                     try:
                         code_len = len(code.strip())
-                        int_code = int(code)
                         if 'IM_NUMIDENT' in key and code_len != 8:
-                            int_code = None
+                            code = None
                     except ValueError:
-                        int_code = None
-                    company[key] = int_code
+                        code = None
+                    company[key] = code
                 elif 'IAN_RO_DT' in key:
                     date = company['IAN_RO_DT']
                     date_time_obj = datetime.datetime.strptime(date, '%d.%m.%Y %H:%M:%S')
@@ -338,16 +337,61 @@ class DatabaseAccess:
         db['name'].insert(name = name)
 
     def insert_order(self, user, company_info, reporting_date, calc_type):
-        print(len(calc_type))
         if len(calc_type) > 1:
             for i in calc_type:
                 print(i)
-                tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, active=True)
+                tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date,
+                            calc_type=i, active=True, order_date = datetime.datetime.now())
                 tmp.save()
         elif len(calc_type) == 1:
-            tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=calc_type[0], active=True)
+            tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date,
+                        calc_type=calc_type[0], active=True,order_date = datetime.datetime.now())
             tmp.save()
 
+    def find_order(self, user, company_info, reporting_date, calc_type):
+        found = []
+        if len(calc_type) > 1:
+            for i in calc_type:
+                try:
+                    tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, active=True)
+                    found.append(tmp)
+                except:
+                    pass
+        elif len(calc_type) == 1:
+            try:
+                tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=calc_type[0], active=True)
+                found.append(tmp)
+            except:
+                pass
+        return found
+
+    def find_offered_order(self, user, company_info, reporting_date, calc_type):
+        new_calc_type = []
+        if len(calc_type) > 1:
+            for i in calc_type:
+                try:
+                    tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, offered=True)
+                    tmp.offered = False
+                    tmp.rejected = False
+                    tmp.active = True
+                    tmp.order_date = datetime.datetime.now()
+                    tmp.save()
+                except:
+                    new_calc_type.append(i)
+        elif len(calc_type) == 1:
+            print('x')
+            try:
+                print('z')
+                tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date,
+                                        calc_type=calc_type[0], offered=True)
+                tmp.offered = False
+                tmp.rejected = False
+                tmp.active = True
+                tmp.order_date = datetime.datetime.now()
+                tmp.save()
+            except:
+                new_calc_type.append(calc_type[0])
+        return new_calc_type
 
 
 

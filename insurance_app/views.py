@@ -18,9 +18,14 @@ from django.core.mail import EmailMessage
 import threading
 from .processor import Processor
 from django.core.exceptions import ObjectDoesNotExist
-from django.utils.datastructures import MultiValueDictKeyError
+from django.db.models import Q
 
 def index(request):
+    # companu = CompanyInfo.objects.get(IM_NUMIDENT=20693867)
+    # tmp=Order(user=request.user, company_info=companu, reporting_date='2020-06-21', calc_type='1', offered=True)
+    # tmp.save()
+    r = requests.get("https://api.youscore.com.ua/v1/IndividualsCourtStatusOfTheCase?LastName=Тимошенко&FirstName=Юлія&MiddleName=Володимирівна", headers={"Accept": "application/json"})
+    print(r.json)
     companies = Company.objects.all()
     template = loader.get_template('insurance_app/index.html')
     context = {
@@ -302,12 +307,26 @@ def auto_fill(request):
     context = update_obj.gai(number)
     return JsonResponse({'context':context})
 
-def order(request):
+def order(request,order_id):
     template = loader.get_template('insurance_app/order.html')
+    user = request.user
+    user_orders = Order.objects.order_by("-order_date").filter(
+        Q(user=user, active=True) | Q(user=user, offered=True, rejected=True))
+    user_orders_offered = Order.objects.order_by("-order_date").filter(user=user,
+                                                        offered=True, rejected=False,active=False)
+    if len(user_orders_offered) > 3:
+        user_orders_offered3 = Order.objects.order_by("-order_date").filter(user=user, offered=True, rejected=False,
+                                                                            active=False)[:3]
+    else: user_orders_offered3 = []
+    if len(user_orders) > 3:
+        user_orders3 = Order.objects.order_by("-order_date").filter(
+            Q(user=user, active=True) | Q(user=user, offered=True, rejected=True))[:3]
+    else: user_orders3 = []
     if request.POST:
         db_obj = DatabaseAccess()
         choice_id = request.POST['company']
-        company_info = CompanyUser.objects.get(id=choice_id).company_info
+        print(choice_id)
+        company_info = CompanyInfo.objects.get(IM_NUMIDENT=choice_id)
         print(request.POST)
         user = request.user
         reporting_date = request.POST['reporting_date']
@@ -315,34 +334,99 @@ def order(request):
         if calc_type == False:
             form = OrderForm(request.POST)
             form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+            order=0
             context = {
                 'form': form,
+                'user_orders': user_orders,
+                'user_orders3': user_orders3,
+                'order': order,
+                'user_orders_offered': user_orders_offered,
+                'user_orders_offered3': user_orders_offered3
             }
             return HttpResponse(template.render(context, request))
         else:
-            db_obj.insert_order(user, company_info, reporting_date, calc_type)
-            return redirect('insurance_app:order')
+            print(request.POST)
+            found = db_obj.find_order(user, company_info, reporting_date, calc_type)
+            print(found)
+            print(type(reporting_date))
+            if found:
+                order_error = 'Замовлення для компанії ' + company_info.IAN_FULL_NAME + ' на звітню дату ' + \
+                              datetime.datetime.strptime(reporting_date, '%Y-%m-%d').strftime('%d.%m.%Y') + ' з видами розрахунку '
+                for i in found:
+                    print(type(order_error))
+                    order_error+= i.calc_type
+                order_error += ' вже існують. Будь ласка, змініть параметри замовлення. '
+                form = OrderForm(request.POST)
+                form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+                order = 0
+                context = {
+                    'form': form,
+                    'user_orders': user_orders,
+                    'user_orders3': user_orders3,
+                    'order': order,
+                    'user_orders_offered': user_orders_offered,
+                    'user_orders_offered3': user_orders_offered3,
+                    'order_error': order_error
+                }
+                return HttpResponse(template.render(context, request))
+            else:
+                new_calc_type = db_obj.find_offered_order(user, company_info, reporting_date, calc_type)
+                if new_calc_type:
+                    db_obj.insert_order(user, company_info, reporting_date, new_calc_type)
+                return redirect('insurance_app:order',order_id=0)
     else:
-        user = request.user
-        user_orders = Order.objects.order_by("-id").filter(user=user)
-        if len(user_orders)>3:
-            user_orders3 = Order.objects.order_by("-id").filter(user=user)[:3]
-        else: user_orders3 = []
-        form = OrderForm(instance=user)
-        form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+        if order_id == 0:
+            form = OrderForm()
+            form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+            order = 0
+        elif order_id!=0:
+            try:
+                order = Order.objects.get(id=order_id)
+                print(order.company_info.IAN_FULL_NAME)
+                if order.user == user:
+                    form = OrderForm({'company': str(order.company_info.IM_NUMIDENT), 'reporting_date': str(order.reporting_date), 'calc_type': list(order.calc_type)})
+                    form.fields['company']._set_queryset(CompanyUser.objects.filter(user=user))
+                else:
+                    form = None
+                    order = None
+            except:
+                form = None
+                order = None
         context = {
             'form': form,
             'user_orders':user_orders,
-            'user_orders3':user_orders3
+            'user_orders3':user_orders3,
+            'order': order,
+            'user_orders_offered':user_orders_offered,
+            'user_orders_offered3': user_orders_offered3
         }
         return HttpResponse(template.render(context, request))
 
 def order_history(request):
     template = loader.get_template('insurance_app/order_history.html')
     user = request.user
-    user_orders = Order.objects.order_by("-id").filter(user=user)
+    user_orders = Order.objects.order_by("-order_date").filter(
+        Q(user=user, active=True) | Q(user=user, offered=True, rejected=True))
+    print(user_orders)
     context = {
         'user_orders': user_orders,
+    }
+    return HttpResponse(template.render(context, request))
+
+def reject_order(request, order_id):
+    order = Order.objects.get(id=order_id)
+    order.rejected = True
+    order.order_date = datetime.datetime.now()
+    order.save()
+    return redirect('insurance_app:order', order_id = 0)
+
+def order_offered(request):
+    template = loader.get_template('insurance_app/order_offered.html')
+    user = request.user
+    user_orders_offered = Order.objects.order_by("-order_date").filter(user=user,offered=True,rejected=False,active=False)
+    print(user_orders_offered)
+    context = {
+        'user_orders_offered' : user_orders_offered,
     }
     return HttpResponse(template.render(context, request))
 

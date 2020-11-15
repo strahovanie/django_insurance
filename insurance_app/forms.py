@@ -150,7 +150,8 @@ class OrderForm(forms.ModelForm):
 
     company = DeleteChoiceField(label='Компанії', empty_label="Оберіть компанію...",
                                  queryset=CompanyUser.objects.filter(user = None),
-                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_delete'}))
+                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_delete'}),
+                                to_field_name="company_info")
     calc_type = forms.MultipleChoiceField(choices=(("1", "1"),
                                                 ("2", "2"),
                                                 ("3", "3"),

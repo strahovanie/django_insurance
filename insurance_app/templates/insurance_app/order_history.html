@@ -7,17 +7,24 @@
     {% for order in user_orders %}
     <div class="box">
         <div>
-            <p id='order' class="text-info">Замовлення {{order.id}}:
-            {% if order.done %}
-            Виконано
-            {% else %}
-            Не виконано
-            {% endif %}</p>
+            <p class="text-info">
+                {% if order.done and order.active %}
+                Замовлення {{order.id}}: Виконано
+                {% elif not order.done and order.active %}
+                Замовлення {{order.id}}: Не виконано
+                {% elif order.offered and order.rejected %}
+                Пропозиція замовлення: Відхилено
+                {% endif %}
+            </p>
             Компанія: {{order.company_info.IAN_FULL_NAME}}<br>
             Звітня дата: {{order.reporting_date}}<br>
             Вид розрахунку: {{order.calc_type}}<br>
             Дата замовлення: {{order.order_date}}
-            <p></p>
+            <div>
+                <a href="{% url 'insurance_app:order' order.id %}">
+                    <p id="load_order">Завантажити в розрахунки</p>
+                </a>
+            </div>
         </div>
     </div>
     {% endfor %}
@@ -60,6 +67,7 @@
     font-size: 12pt;
     text-align:right;
 }
+
 </style>
 {% else %}
 Ви не зареєстровані

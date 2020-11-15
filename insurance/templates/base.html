@@ -30,7 +30,7 @@
       </li>
       {% if user.is_authenticated %}
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'insurance_app:order' %}">Розрахунки</a>
+        <a class="nav-link" href="{% url 'insurance_app:order' 0 %}">Розрахунки</a>
       </li>
       {% endif %}
     </ul>

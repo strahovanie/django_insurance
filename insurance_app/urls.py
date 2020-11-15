@@ -38,6 +38,8 @@ urlpatterns = [
     path('company_list',views.company_list, name='company_list'),
     path('company_detail/<int:company_IM_NUMIDENT>',views.company_detail, name='company_detail'),
     path('add_info_to_company/<int:company_IM_NUMIDENT>',views.add_info_to_company, name='add_info_to_company'),
-    path('order',views.order, name='order'),
+    path('order/<int:order_id>',views.order, name='order'),
     path('order_history',views.order_history, name='order_history'),
+    path('reject_order/<int:order_id>',views.reject_order, name='reject_order'),
+    path('order_offered',views.order_offered, name='order_offered'),
 ]

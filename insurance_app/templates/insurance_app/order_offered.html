@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<div class="center-block">
+    {% if user_orders_offered %}
+    <h2>Ви можете замовити:</h2>
+    {% for order in user_orders_offered %}
+    <div class="box">
+        <div>
+            <br>
+            <a href="{% url 'insurance_app:reject_order' order.id %}"><img id='reject' src="/static/media/dis.png" title="Видалити"></a>
+            Компанія: {{order.company_info.IAN_FULL_NAME}}<br>
+                Звітня дата: {{order.reporting_date}}<br>
+                Вид розрахунку: {{order.calc_type}}
+            <a href="{% url 'insurance_app:order' order.id %}">
+                <p id="load_order">Завантажити в розрахунки</p>
+            </a>
+        </div>
+        </div>
+    {% endfor %}
+    {% endif %}
+</div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 90%;
+    margin-top: 5%;
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 3%;
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 50%;
+    margin-top: 2%;
+    }
+}
+.center-block h2{
+    text-align: center;
+}
+#order{
+    font-size: 15pt
+}
+#load_order{
+    font-size: 12pt;
+    text-align:right;
+}
+#reject{
+ height:20px
+ }
+</style>
+{% else %}
+Ви не зареєстровані
+{% endif %}
+{% endblock content %}

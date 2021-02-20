@@ -42,7 +42,7 @@ class UserUpdateForm(forms.ModelForm):
             'email': forms.TextInput(attrs={'class':'form-control'}),
         }
 
-class MyPasswordChangeForm(PasswordChangeForm):
+class MyPasswordChangeForm(SetPasswordForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -148,19 +148,15 @@ class DateInput(forms.DateInput):
 
 class OrderForm(forms.ModelForm):
 
-    company = DeleteChoiceField(label='Компанії', empty_label="Оберіть компанію...",
-                                 queryset=CompanyUser.objects.filter(user = None),
-                                 widget=forms.Select(attrs={'class':'form-control js-example-basic-single','id':'select_delete'}),
-                                to_field_name="company_info")
-    calc_type = forms.MultipleChoiceField(choices=(("1", "1"),
+    calc_type = forms.ChoiceField(choices=(("1", "1"),
                                                 ("2", "2"),
                                                 ("3", "3"),
                                                 ("4", "4"),
                                                 ("5", "5")), required=True,label="Вид розрахунку",
-                                          widget=forms.CheckboxSelectMultiple)
+                                  widget=forms.Select(attrs={'class': 'form-control'}))
     class Meta:
         model = Order
-        fields = ['company','reporting_date','calc_type']
+        fields = ['reporting_date']
 
         labels = {
             'reporting_date': 'Звітня дата',
@@ -186,3 +182,33 @@ class AutoInsurance(forms.Form):
     brand = forms.CharField(label="Марка автомобіля",widget=forms.TextInput(attrs={'class': 'form-control'}))
     model = forms.CharField(label="Модель автомобіля",widget=forms.TextInput(attrs={'class': 'form-control'}))
     address = forms.CharField(label="Адреса",widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+class DocContractActForm(forms.ModelForm):
+
+    class Meta:
+        model = Documents
+        fields = ('file_location_received',)
+
+        labels = {
+            'file_location_received': 'Розташування файлу',
+        }
+
+        widgets = {
+            'file_location_received': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class DocBillForm(forms.ModelForm):
+
+    class Meta:
+        model = Documents
+        fields = ('file_location_received', 'current_payment_amount')
+
+        labels = {
+            'file_location_received': 'Розташування файлу',
+            'current_payment_amount': 'Скільки оплачено: '
+        }
+
+        widgets = {
+            'file_location_received': forms.TextInput(attrs={'class': 'form-control'}),
+            'current_payment_amount': forms.TextInput(attrs={'class': 'form-control'}),
+        }

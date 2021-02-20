@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="col-12 text-center py-5">
+        <h4>Результат: </h4>
+        <p>{{output_data}}</p>
+        <p>Чи погоджені ви з результатом?</p>
+        <p>При погодженні з результатом, він буде відісланий нам на електронну пошту</p>
+        <form method="post" action="{% url 'insurance_app:show_count_result' order_id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Погодитися</button>
+        </form>
+      </div>
+{% endblock %}

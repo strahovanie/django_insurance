@@ -2,19 +2,43 @@
 {% block content %}
 {% if user.is_authenticated %}
 <div class="center-block">
+    {% if user_companies %}
     <h2>Список компаній</h2>
     {% for i in user_companies %}
     <div class="box">
         <div>
             <p id='company-information'>{{ i.company_info.IAN_FULL_NAME }}</p>
         </div>
-        <div>
+        <div style="display: inline-block;">
+            {% if session_company %}
+            {% if session_company == i.company_info.IM_NUMIDENT %}
+                <p class="text-success">Обрана</p>
+            {% else %}
+            <a href="{% url 'insurance_app:company_is_chosen' i.company_info.IM_NUMIDENT %}">
+                <p class="text-primary">Обрати</p>
+            </a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'insurance_app:company_is_chosen' i.company_info.IM_NUMIDENT %}">
+                <p class="text-primary">Обрати</p>
+            </a>
+            {% endif %}
+        </div>
+        <div style="display: inline-block; margin-left:6px; float:right;">
             <a href="{% url 'insurance_app:company_detail' i.company_info.IM_NUMIDENT %}">
-                <p class="text-info">Детальніше</p>
+                <p class="text-info">Детальніше про компанію</p>
             </a>
         </div>
     </div>
     {% endfor %}
+    {% else %}
+    <h2>У вас поки не додано ні однієї компанії</h2>
+     <h5>
+                1) Натисніть на вкладку "Компанія" на навігаційній панелі та оберіть вкладку "Додати/видалити компанію".<br>
+                У пункті "Вкажіть компанію, яку ви хочете додати:" оберіть потрібну Вам компанію.<br>
+                2) Якщо ви вже додали компанію, то вона зявиться у вкладці "Змінити компанію",<br>
+                коли адміністратор сайту підтвердить її.</h5>
+    {% endif %}
 </div>
 <style>
 @media screen and (orientation: portrait) {
@@ -41,14 +65,23 @@
     margin-top: 2%;
     }
 }
-.center-block h2{
+.center-block h2, h5{
     text-align: center;
 }
 #company-information{
     margin-top:3%;
     font-size: 15pt
 }
+.text-primary{
+    font-size: 14pt
+}
 .text-info{
+    font-size: 14pt;
+}
+.text-success{
+    font-size: 14pt
+}
+.text-danger{
     font-size: 14pt
 }
 </style>

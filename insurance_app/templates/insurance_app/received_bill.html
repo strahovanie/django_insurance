@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated and doc_form != None %}
+<div class="center-block">
+    <div class="form-div">
+        <h2>Вкажіть розташування договору:</h2>
+        <p>Компанія {{doc.company_info.IAN_FULL_NAME}}</p>
+    <form method="post" action="{% url 'insurance_app:received_bill' doc.id %}">
+        {% csrf_token %}
+        {{ doc_form }}
+        <div class="col-md-20 text-center">
+            <button id='add' type="submit" class="btn btn-dark">Зберегти</button>
+        </div>
+    </form>
+    </div>
+</div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    width: 100vw;
+    height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    .form-div{
+    width:90%
+    }
+    #add{
+    margin-top: 5%
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+    #add{
+    margin-top: 3%
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 7%;
+    }
+    #add{
+    margin-top: 3%
+    }
+}
+.center-block h2{
+    text-align: center;
+}
+.errorlist {
+    color: red
+}
+</style>
+{% else %}
+Ви не зареєстровані
+{% endif %}
+{% endblock content %}

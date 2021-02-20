@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if company_documents %}
+<div class="table-div">
+    <h4>На цій сторінці розміщується інформація щодо договорів, актів та рахунків по комапнії <br>
+    {{company_name}}</h4>
+<table cellpadding="1" cellspacing="0">
+    <thead>
+    <tr >
+                            <th id="ID">ID</th>
+                            <th id="IAN_FULL_NAME">Найменування</th>
+                            <th id="IM_NUMIDENT">Код ЄДРПОУ</th>
+                            <th id="type_of_contract">Тип документу</th>
+                            <th id="signed_by_us">Підписано нами</th>
+                            <th id="signed_by_client">Підписано отримувачем</th>
+                            <th id="full_payment_amount">Повна сума для оплати</th>
+                            <th id="current_payment_amount">Оплачено зараз</th>
+                            <th id="sended">Відправлено отримувачу</th>
+                            <th id="recived">Отримано адміном</th>
+                            <th id="create">Створити договір</th>
+                        </tr>
+    </thead>
+  {% for doc in company_documents %}
+    <tbody>
+  <tr>
+                        <td headers="ID" >{{ doc.id }}</td>
+                        <td headers="IAN_FULL_NAME" >{{ doc.company_info.IAN_FULL_NAME }}</td>
+                        <td headers="IM_NUMIDENT" >{{ doc.company_info.IM_NUMIDENT }}</td>
+                        <td headers="type_of_contract" >{{ doc.type_of_contract }}</td>
+                        <td headers="signed_by_us">{{ doc.signed_by_us }}</td>
+                        <td headers="signed_by_client">{{ doc.signed_by_client }}</td>
+                        <td headers="full_payment_amount" >{{ doc.full_payment_amount }}</td>
+                        <td headers="current_payment_amount" >{{ doc.current_payment_amount }}</td>
+                        <td headers="sended" >{{ doc.sended }}</td>
+                        <td headers="received" >{{ doc.received }}</td>
+                        {% if doc.type_of_contract == 'contract' and not doc.sended %}
+                        <td headers="create1" >
+                            <a href="{% url 'insurance_app:create_contract' doc.company_info.IM_NUMIDENT %}">
+                                Створити
+                            </a>
+                        </td>
+                        {% elif doc.sended and not doc.received %}
+                        <td class='text-danger' headers="create2" >Віправлено, але не отримано</td>
+                        {% elif doc.type_of_contract == 'contract' and doc.sended and doc.received %}
+                        <td headers="create2" >Підписано</td>
+                        {% elif doc.type_of_contract == 'act' and doc.sended and doc.received %}
+                        <td headers="create2" >Отримано</td>
+                        {% elif doc.type_of_contract == 'bill' and doc.sended and doc.received and doc.paid_in_full %}
+                        <td headers="create2" >Оплачено</td>
+                        {% elif doc.type_of_contract == 'bill' and doc.sended and doc.received and not doc.paid_in_full %}
+                        <td class='text-danger' headers="create2" >Не повністю оплачено</td>
+                        {% endif %}
+
+  </tr>
+    </tbody>
+  {% endfor %}
+</table></div>
+{% else %}
+    <p>Нема документів для відображення.</p>
+{% endif %}
+<style>
+    .table-div{
+        width: 98%;
+        margin-left: 20px;
+        margin-right: auto;
+        overflow-x: auto;
+        opacity: 0.7;
+        margin-top: 30px;
+        color: #000;
+        text-align: center;
+    }
+table {margin-top: 30px; width: 80%; border-bottom: 2px solid #dfdfdf; border-radius: 6px; border-collapse: separate; border-spacing: 0px;}
+table thead tr {color: #ffffff; font-weight: bold; background: #3B5998;}
+table tr td {color: #000000; background: #ffffff; border-right: 1px solid #dfdfdf;text-align: left;}
+table tbody tr:hover {background: #ffffff; }
+
+</style>
+{% endblock content %}

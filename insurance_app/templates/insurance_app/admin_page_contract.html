@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if admin == True %}
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
+<script>
+function doIt() {
+        console.log(document.getElementById('update_database').value);
+       $.ajax({
+         type: "POST",
+         url: "update_database/",
+         data: {
+            alert_data: document.getElementById('update_database').value,
+         },
+         success: function(data) {
+           alert(data.context);
+         },
+         error: function(xhr, textStatus, errorThrown) {
+           alert("Error: "+errorThrown+xhr.status+xhr.responseText);
+         }
+       });
+     }
+$(document).ready(function () {
+        $('[id^="confirm_request_"]').bind("click", function(){
+            request_id = this.value;
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                data: {'request_id':request_id},
+                url: 'accept_chosen_request/',
+                success: function(){
+                $(button_id).removeClass('btn btn-dark').addClass('btn btn-success');
+                $(button_id).text('Підтверджено');
+                },
+            });
+        });
+        $("#confirm_all").bind("click", function(){
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                url: 'accept_all_request/',
+                success: function(){
+                $("#confirm_all").removeClass('btn btn-dark').addClass('btn btn-success');
+                $("#confirm_all").text('Підтверджено все');
+                },
+            });
+        });
+        $("#load_to_database").bind("click", function(){
+            button_id = '#' + this.id;
+            console.log(button_id);
+            $.ajax({
+                type:"POST",
+                url: 'load_to_database/',
+                success: function(){
+                $("#load_to_database").removeClass('btn btn-dark').addClass('btn btn-success');
+                $("#load_to_database").text('Завантажено');
+                },
+            });
+        });
+    $('#table-id').DataTable( {
+        "scrollX": true,
+		"language": {
+			"url": "https://cdn.datatables.net/plug-ins/1.10.21/i18n/Ukrainian.json",
+		},
+	} );
+});
+</script>
+<div class="table-div">
+<table id="table-id" class="display nowrap dataTable dtr-inline collapsed" data-page-length='10'>
+    <thead>
+        <tr>
+            <th id="ID">ID</th>
+            <th id="IAN_FULL_NAME">Найменування</th>
+            <th id="IM_NUMIDENT">Код ЄДРПОУ</th>
+            <th id="type_of_contract">Тип документу</th>
+            <th id="file_location_sended">Розташування відправленого файлу</th>
+            <th id="file_location_received">Розташування отриманого файлу</th>
+            <th id="signed_by_us">Підписано нами</th>
+            <th id="signed_by_client">Підписано отримувачем</th>
+            <th id="full_payment_amount">Повна сума для оплати</th>
+            <th id="current_payment_amount">Оплачено зараз</th>
+            <th id="paid_in_full">Оплачено повністю</th>
+            <th id="sended">Відправлено отримувачу</th>
+            <th id="recived">Отримано адміном</th>
+            <th id="CONFIRM_BUTTON">Кнопка підтвердження</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in docs %}
+            <tr>
+                <td>{{ doc.id }}</td>
+                <td>{{ doc.company_info.IAN_FULL_NAME }}</td>
+                <td>{{ doc.company_info.IM_NUMIDENT }}</td>
+                <td>{{ doc.type_of_contract }}</td>
+                <td>{{ doc.file_location_sended }}</td>
+                <td>{{ doc.file_location_received }}</td>
+                <td>{{ doc.signed_by_us }}</td>
+                <td>{{ doc.signed_by_client }}</td>
+                <td>{{ doc.full_payment_amount }}</td>
+                <td>{{ doc.current_payment_amount }}</td>
+                <td>{{ doc.paid_in_full }}</td>
+                <td>{{ doc.sended }}</td>
+                <td>{{ doc.received }}</td>
+                {% if doc.type_of_contract == 'contract' and doc.received == False %}
+                <td><a href="{% url 'insurance_app:received_contract_act' doc.id %}"><button class="btn btn-dark">Отримано контракт</button></a></td>
+                {% elif doc.type_of_contract == 'act' and doc.received == False %}
+                <td><a href="{% url 'insurance_app:received_contract_act' doc.id %}"><button class="btn btn-dark">Отримано акт</button></a></td>
+                {% elif doc.type_of_contract == 'bill' and doc.paid_in_full == False %}
+                <td><a href="{% url 'insurance_app:received_bill' doc.id %}"><button class="btn btn-dark">Отримано рахунок</button></a></td>
+                {% else %}
+                <td> ----- </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+
+<style>
+@media screen and (orientation: portrait) {
+    .table-div{
+    margin-left:1%;
+    margin-top:2%;
+    }
+    .load-div{
+    margin-top:15%;
+    margin-left:1%;
+    }
+    .update-div{
+    margin-top:2%;
+    margin-left:1%;
+    }
+
+}
+@media screen and (orientation: landscape) {
+    .table-div{
+    margin-top:2%;
+    }
+    .load-div{
+    margin-top:2%;
+    margin-left:1%;
+    }
+    .update-div{
+    margin-top:2%;
+    margin-left:1%;
+    }
+
+}
+@media screen and (min-width: 1025px) {
+    .table-div{
+    margin-left: 0.1%;
+    margin-top:2%;
+    }
+    .load-div{
+    margin-left: 1%;
+    margin-top:2%;
+    }
+    .update-div{
+    margin-top:0.5%;
+    margin-left:1%;
+    }
+}
+#table-id{
+    width:99%
+}
+.confirm-div{
+    margin-top:2%;
+    position:absolute;
+    right:1%
+}
+.alert-p{
+    color:red
+}
+</style>
+{% else %}
+Ви не зареєстровані або не увійшли в аккаунт
+{% endif %}
+{% endblock content %}

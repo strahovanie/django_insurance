@@ -12,7 +12,7 @@ class Processor():
         rows = Company.objects.filter(update_date=data)
         modify_obj.modify_company(tuple_obj[0])
         obj.compare(rows, tuple_obj[0])
-        print(db_obj.upload_companies(tuple_obj[0]) + '1')
+        print(db_obj.upypload_companies(tuple_obj[0]) + '1')
 
     def load_company(self):
         db_obj = DatabaseAccess()

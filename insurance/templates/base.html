@@ -29,8 +29,20 @@
         <a class="nav-link" href="{% url 'insurance_app:auto_insurance' %}">Автоцивілка</a>
       </li>
       {% if user.is_authenticated %}
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'insurance_app:order' 0 %}">Розрахунки</a>
+      <li class="nav-item" style="display: inline-block">
+        <div class="btn-group" style="display: inline-block">
+        <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Компанія</button>
+        <div class="dropdown-menu dropdown-menu-left">
+        <a class="dropdown-item" href="{% url 'insurance_app:add_company' %}">Додати/видалити компанію</a>
+        <a class="dropdown-item" href="{% url 'insurance_app:company_list' %}">Змінити компанію</a>
+        <a class="dropdown-item" href="#">Завантаження</a>
+        {% if request.session.company_IM_NUMIDENT %}
+          <a class="dropdown-item" href="{% url 'insurance_app:documents' request.session.company_IM_NUMIDENT %}">Документи</a>
+          <a class="dropdown-item" href="{% url 'insurance_app:order' 0 %}">Замовити розрахунок</a>
+          <a class="dropdown-item" href="{% url 'insurance_app:company_detail' request.session.company_IM_NUMIDENT %}">Детальніше про компанію</a>
+        {% endif %}
+        </div>
+      </div>
       </li>
       {% endif %}
     </ul>
@@ -40,18 +52,16 @@
       <div class="btn-group" style="display: inline-block">
         <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ user.username }}</button>
         <div class="dropdown-menu dropdown-menu-right">
-        <a class="dropdown-item" href="{% url 'insurance_app:add_company' %}">Аккаунт</a>
+        <a class="dropdown-item" href="{% url 'insurance_app:user_page' %}">Аккаунт</a>
         <a class="dropdown-item" href="{% url 'insurance_app:password_change' %}">Змінити пароль</a>
-          {% if user.is_superuser %}
-        <a class="dropdown-item" href="{% url 'insurance_app:admin_page' %}">Адмін</a>
-          {% endif %}
+        {% if user.is_superuser %}
+          <a class="dropdown-item" href="{% url 'insurance_app:admin_page' %}">Компанії (адмін) </a>
+          <a class="dropdown-item" href="{% url 'insurance_app:admin_page_contract' %}">Договори (адмін) </a>
+        {% endif %}
+        <a class="dropdown-item" href="{% url 'insurance_app:logout' %}">Вийти</a>
         </div>
       </div>
     </li>
-    <li class="nav-item" style="display: inline-block">
-        <a class="nav-link" href="{% url 'insurance_app:company_list' %}">Компанії</a>
-    </li>
-    <li class="nav-item" style="display: inline-block"><a class="nav-link" href="{% url 'insurance_app:logout' %}">Вийти</a></li>
     {% else %}
       <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:login_user' %}">Увійти</a></li>
       <li class="nav-item"><a class="nav-link" href="{% url 'insurance_app:register' %}">Реєстрація</a></li>

@@ -3,27 +3,6 @@
 
 {% if user.is_authenticated %}
 <div class="center-block">
-    <div class="card bg-light border-info mb-3">
-        <div class="card-header border-info">Інформація про аккаунт</div>
-        <div class="card-body">
-            <p class="card-text">Ім'я користувача: {{ user.username }}</p>
-            <p class="card-text">Електронна пошта: {{ user.email }}</p>
-            <p class="card-text">Ім'я: {{ user.first_name }}</p>
-            <p class="card-text">Прізвище: {{ user.last_name }}</p>
-            <p class="card-text">Номер мобільного телефону: {{ user.userprofile.mobile_phone }}</p>
-            <p class="card-text">Номер рабочого телефону: {{ user.userprofile.work_phone }}</p>
-            <p class="card-text">Додаткова електронна пошта: {{ user.userprofile.email2 }}</p>
-        </div>
-    </div>
-    <div>
-        <h2 class="title">Змінити свої дані: </h2>
-            <form method="POST" action="{% url 'insurance_app:add_company' %}">
-                {% csrf_token %}
-                {{ form1.as_table }}
-                {{ form2.as_table }}
-                <button id='save' type="submit" class="btn btn-dark">Зберегти</button>
-            </form>
-    </div>
     <div id='add_company'>
         <h4 class="title is-3">Вкажіть компанію, яку ви хочете додати:</h4>
         <p>(Адміністратору буде відправлено запит на додавання компанії)</p>

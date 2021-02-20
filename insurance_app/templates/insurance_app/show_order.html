@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if order and user_flag %}
+<div class="center-block">
+    <div class="card bg-light border-info mb-3">
+        <div class="card-header border-info">Замовлення номер {{order.id}}</div>
+        <div class="card-body">
+            <p class="card-text">Тип розрахунку: {{ order.calc_type }}</p>
+            <p class="card-text">Звітня дата: {{ order.reporting_date }}</p>
+            <p class="card-text">Дата замовлення: {{ order.order_date }}</p>
+            <p class="card-text">Результат: {{ company.IM_NUMIDENT }}</p>
+            {{file_info}}
+        </div>
+    </div>
+</div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 90%;
+    margin-top: 10%;
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 5%;
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 45%;
+    margin-top: 3%;
+    }
+}
+.card{
+    width: 100%;
+}
+.card .card-header {
+    font-weight:bold
+}
+.title{
+    text-align: center;
+}
+.additional-info{
+    margin-top: 2%
+}
+#add {
+    margin-top: 3%
+}
+</style>
+{% elif user_flag == False %}
+Ви не маєте доступу до цього замовлення або це замовлення не для компанії, з якою ви зараз працюєте
+{% else %}
+Замовлення з таким номером не існує
+{% endif %}
+{% endblock content %}

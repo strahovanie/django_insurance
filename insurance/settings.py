@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['192.168.88.229','127.0.0.1','172.20.10.10']
 
-LOGIN_REDIRECT_URL = '/insurance_app/'
+LOGIN_REDIRECT_URL = '/insurance_app/choose_company'
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
 )

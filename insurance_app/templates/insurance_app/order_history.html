@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if user.is_authenticated %}
+{% if session_company %}
 <div class="center-block">
     {% if user_orders %}
-    <h2>Історія замовлень:</h2>
+    <h4>Історія замовлень для компанії <br> {{user_company.IAN_FULL_NAME}}</h4>
     {% for order in user_orders %}
     <div class="box">
         <div>
             <p class="text-info">
                 {% if order.done and order.active %}
                 Замовлення {{order.id}}: Виконано
-                {% elif not order.done and order.active %}
-                Замовлення {{order.id}}: Не виконано
+                {% elif not order.done and order.active and not order.enough_data %}
+                Замовлення {{order.id}}: Не виконано - недостатньо даних для розрахунку
                 {% elif order.offered and order.rejected %}
                 Пропозиція замовлення: Відхилено
                 {% endif %}
@@ -21,16 +22,35 @@
             Вид розрахунку: {{order.calc_type}}<br>
             Дата замовлення: {{order.order_date}}
             <div>
+                {% if order.done %}
+                <a href="{% url 'insurance_app:show_order' order.id %}">
+                    <p id="show_order">Детально</p>
+                </a>
+                {% endif %}
+                {% if not order.done %}
                 <a href="{% url 'insurance_app:order' order.id %}">
                     <p id="load_order">Завантажити в розрахунки</p>
                 </a>
+                {% endif %}
             </div>
         </div>
     </div>
     {% endfor %}
     {% else %}
-    У вас поки немає замовлень
+    <div class="col-12 text-center py-5">
+            <h5>У вас поки немає замовлень</h5>
+      </div>
     {% endif %}
+{% else %}
+    <div class="col-12 text-center py-5">
+            <h5>Ви не обрали компанію для того, щоб здійснити замовлення. <br>Будь ласка зайдіть у вкладку
+"Змінити компанію" на навігаційній панелі та оберіть її. <br>Якщо ж у цій вкладці немає компаній, то:<br>
+                1) Натисніть на імя вашого акаунта на навігаційній панелі та оберіть вкладку "Аккаунт".<br>
+                У пункті "Вкажіть компанію, яку ви хочете додати:" оберіть потрібну Вам компанію.<br>
+                2) Якщо ви вже додали компанію, то вона зявиться у вкладці "Змінити коипанію",<br>
+                коли адміністратор сайту підтвердить її.</h5>
+      </div>
+{% endif %}
 </div>
 <style>
 @media screen and (orientation: portrait) {
@@ -57,7 +77,7 @@
     margin-top: 2%;
     }
 }
-.center-block h2{
+.center-block h4{
     text-align: center;
 }
 #order{
@@ -67,7 +87,10 @@
     font-size: 12pt;
     text-align:right;
 }
-
+#show_order{
+    font-size: 12pt;
+    text-align:right;
+}
 </style>
 {% else %}
 Ви не зареєстровані

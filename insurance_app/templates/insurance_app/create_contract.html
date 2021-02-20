@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="col-12 text-center py-5">
+            <h4 class='my-5 py-5'>Для роботи потрібно укласти договір з
+            компанією "Страхова компанія "МИР"</h4>
+            <h5>Договір для компанії {{company_info.IAN_FULL_NAME}}</h5>
+            <p>Ви можете укласти договір зараз, або пропустити і укласти його пізніше.
+            Для того щоб пропустити цей крок, натисніть "Пропустити"</p>
+        <form method="post" action="{% url 'insurance_app:create_contract' IM_NUMIDENT %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark">Укласти договір</button>
+            <a href="{% url 'insurance_app:add_company' %}">Пропустити</a>
+        </form>
+      </div>
+{% endblock %}

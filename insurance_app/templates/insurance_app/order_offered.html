@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if user.is_authenticated %}
+{% if session_company %}
 <div class="center-block">
     {% if user_orders_offered %}
-    <h2>Ви можете замовити:</h2>
+    <h4>Ви можете замовити для компанії <br> {{user_company.IAN_FULL_NAME}}:</h4>
     {% for order in user_orders_offered %}
     <div class="box">
         <div>
@@ -18,6 +19,18 @@
         </div>
         </div>
     {% endfor %}
+    {% else %}
+    Поки пропозицій немає
+    {% endif %}
+    {% else %}
+    <div class="col-12 text-center py-5">
+            <h5>Ви не обрали компанію для того, щоб здійснити замовлення. <br>Будь ласка зайдіть у вкладку
+"Змінити компанію" на навігаційній панелі та оберіть її. <br>Якщо ж у цій вкладці немає компаній, то:<br>
+                1) Натисніть на імя вашого акаунта на навігаційній панелі та оберіть вкладку "Аккаунт".<br>
+                У пункті "Вкажіть компанію, яку ви хочете додати:" оберіть потрібну Вам компанію.<br>
+                2) Якщо ви вже додали компанію, то вона зявиться у вкладці "Змінити коипанію",<br>
+                коли адміністратор сайту підтвердить її.</h5>
+      </div>
     {% endif %}
 </div>
 <style>
@@ -45,7 +58,7 @@
     margin-top: 2%;
     }
 }
-.center-block h2{
+.center-block h4{
     text-align: center;
 }
 #order{

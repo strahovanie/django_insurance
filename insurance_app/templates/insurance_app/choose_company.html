@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+<div class="center-block">
+    <h2>Будь ласка, оберіть компанію для входу: </h2>
+    <h6>Якщо ви хочете продовжити роботу, не обираючи компанію, натисніть "Продовжити"</h6>
+    {% for i in company_user %}
+    <div class="box">
+        <div>
+            <p id='company-user'>{{ i.company_info.IAN_FULL_NAME }}</p>
+        </div>
+        <div>
+            <a href="{% url 'insurance_app:company_is_chosen' i.company_info.IM_NUMIDENT %}">
+                <p class="text-info">Обрати</p>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="continue">
+    <a href="{% url 'insurance_app:index'%}">
+                <button class="btn btn-dark">Продовжити</button>
+    </a>
+    </div>
+</div>
+<style>
+@media screen and (orientation: portrait) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 90%;
+    margin-top: 5%;
+    }
+}
+@media screen and (orientation: landscape) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 80%;
+    margin-top: 3%;
+    }
+}
+@media screen and (min-width: 1025px) {
+    .center-block{
+    display: block;
+    margin: auto;
+    width: 50%;
+    margin-top: 2%;
+    }
+}
+.center-block h2, h6{
+    text-align: center;
+}
+#company-user{
+    margin-top:3%;
+    font-size: 15pt
+}
+.text-info{
+    font-size: 14pt
+}
+.continue {
+    text-align: center;
+}
+</style>
+{% else %}
+Ви не зареєстровані
+{% endif %}
+{% endblock content %}

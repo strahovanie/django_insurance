@@ -155,7 +155,7 @@ class DataModify:
             for key in company:
                 if 'IM_NUMIDENT' in key or 'IAN_RO_CODE' in key:
                     code = company[key]
-                    match = re.findall(r'[!()_*&?.,><@]', code)
+                    match = re.findall(r'[!()_*&?.,><@A-Za-zА-Яа-я]', code)
                     for i in match:
                         code = code.replace(i, '')
                     try:
@@ -163,6 +163,8 @@ class DataModify:
                         if 'IM_NUMIDENT' in key and code_len != 8:
                             code = None
                     except ValueError:
+                        code = None
+                    if code == '' or code == ' ':
                         code = None
                     company[key] = code
                 elif 'IAN_RO_DT' in key:
@@ -337,61 +339,36 @@ class DatabaseAccess:
         db['name'].insert(name = name)
 
     def insert_order(self, user, company_info, reporting_date, calc_type):
-        if len(calc_type) > 1:
-            for i in calc_type:
-                print(i)
-                tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date,
-                            calc_type=i, active=True, order_date = datetime.datetime.now())
-                tmp.save()
-        elif len(calc_type) == 1:
-            tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date,
-                        calc_type=calc_type[0], active=True,order_date = datetime.datetime.now())
-            tmp.save()
+        tmp = Order(user=user, company_info=company_info, reporting_date=reporting_date,
+                    calc_type=calc_type, active=True,order_date = datetime.datetime.now())
+        tmp.save()
+        return tmp
 
     def find_order(self, user, company_info, reporting_date, calc_type):
-        found = []
-        if len(calc_type) > 1:
-            for i in calc_type:
-                try:
-                    tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, active=True)
-                    found.append(tmp)
-                except:
-                    pass
-        elif len(calc_type) == 1:
-            try:
-                tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=calc_type[0], active=True)
-                found.append(tmp)
-            except:
-                pass
+        try:
+            tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=calc_type, active=True)
+            found = tmp
+        except:
+            found = None
         return found
 
     def find_offered_order(self, user, company_info, reporting_date, calc_type):
-        new_calc_type = []
-        if len(calc_type) > 1:
-            for i in calc_type:
-                try:
-                    tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date, calc_type=i, offered=True)
-                    tmp.offered = False
-                    tmp.rejected = False
-                    tmp.active = True
-                    tmp.order_date = datetime.datetime.now()
-                    tmp.save()
-                except:
-                    new_calc_type.append(i)
-        elif len(calc_type) == 1:
-            print('x')
-            try:
-                print('z')
-                tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date,
-                                        calc_type=calc_type[0], offered=True)
-                tmp.offered = False
-                tmp.rejected = False
-                tmp.active = True
-                tmp.order_date = datetime.datetime.now()
-                tmp.save()
-            except:
-                new_calc_type.append(calc_type[0])
-        return new_calc_type
+        print('x')
+        try:
+            print('z')
+            tmp = Order.objects.get(user=user, company_info=company_info, reporting_date=reporting_date,
+                                    calc_type=calc_type, offered=True)
+            tmp.offered = False
+            tmp.rejected = False
+            tmp.active = True
+            tmp.order_date = datetime.datetime.now()
+            tmp.save()
+            new_calc_type = True
+            order_id = tmp.id
+        except:
+            new_calc_type = False
+            order_id = None
+        return new_calc_type,order_id
 
 
 

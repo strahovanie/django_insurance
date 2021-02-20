@@ -10,19 +10,9 @@
             <p id='company-information'>{{ i.company_info.IAN_FULL_NAME }}</p>
         </div>
         <div style="display: inline-block;">
-            {% if session_company %}
-            {% if session_company == i.company_info.IM_NUMIDENT %}
-                <p class="text-success">Обрана</p>
-            {% else %}
             <a href="{% url 'insurance_app:company_is_chosen' i.company_info.IM_NUMIDENT %}">
-                <p class="text-primary">Обрати</p>
+                <p class="text-primary">Увійти</p>
             </a>
-            {% endif %}
-            {% else %}
-            <a href="{% url 'insurance_app:company_is_chosen' i.company_info.IM_NUMIDENT %}">
-                <p class="text-primary">Обрати</p>
-            </a>
-            {% endif %}
         </div>
         <div style="display: inline-block; margin-left:6px; float:right;">
             <a href="{% url 'insurance_app:company_detail' i.company_info.IM_NUMIDENT %}">

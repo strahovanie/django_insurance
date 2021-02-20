@@ -48,7 +48,14 @@ def company_is_chosen(request, IM_NUMIDENT):
     template1 = loader.get_template('insurance_app/text_page.html')
     request.session['company_IM_NUMIDENT'] = IM_NUMIDENT
     company = Company.objects.filter(IM_NUMIDENT=IM_NUMIDENT).last()
-    context = {'text': 'Компанія '+ company.IAN_FULL_NAME +' успішно обрана'}
+    context = {'text': 'Ви увійшли у компанію '+ company.IAN_FULL_NAME}
+    return HttpResponse(template1.render(context, request))
+
+def company_logout(request, IM_NUMIDENT):
+    template1 = loader.get_template('insurance_app/text_page.html')
+    request.session['company_IM_NUMIDENT'] = None
+    company = Company.objects.filter(IM_NUMIDENT=IM_NUMIDENT).last()
+    context = {'text': 'Ви вийшли з компанії '+ company.IAN_FULL_NAME}
     return HttpResponse(template1.render(context, request))
 
 def company_list(request):
@@ -670,7 +677,7 @@ def csrf_failure(request, reason=""):
 
 def documents(request, IM_NUMIDENT):
     template = loader.get_template('insurance_app/documents.html')
-    company_documents = Documents.objects.filter(company_info = IM_NUMIDENT)
+    company_documents = Documents.objects.filter(company_info = IM_NUMIDENT).order_by("order_id")
     company_name = CompanyInfo.objects.get(IM_NUMIDENT = IM_NUMIDENT).IAN_FULL_NAME
     context = {
         'company_documents': company_documents,

@@ -23,6 +23,11 @@
     </thead>
   {% for doc in company_documents %}
     <tbody>
+    {% if doc.type_of_contract == 'act' %}
+  <tr>
+      <td colspan="11" style="background-color:#3B5998; text-align: center"><a style="color: #fff; text-decoration: underline; font-weight: bold" href="{% url 'insurance_app:show_order' doc.order_id %}">Замовлення № {{ doc.order_id }}</a></td>
+  </tr>
+    {% endif %}
   <tr>
                         <td headers="ID" >{{ doc.id }}</td>
                         <td headers="IAN_FULL_NAME" >{{ doc.company_info.IAN_FULL_NAME }}</td>

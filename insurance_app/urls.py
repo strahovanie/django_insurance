@@ -54,4 +54,5 @@ urlpatterns = [
     path('received_bill/<int:doc_id>', views.received_bill, name='received_bill'),
     path('try', views.tryx, name='try'),
     path('user_page', views.user_page, name='user_page'),
+    path('company_logout/<str:IM_NUMIDENT>', views.company_logout, name='company_logout'),
 ]
